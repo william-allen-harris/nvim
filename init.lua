@@ -10,6 +10,126 @@ vim.opt.signcolumn = "yes"
 vim.opt.termguicolors = true
 vim.keymap.set("n", "<space>", "<nop>", { silent = true, remap = false })
 vim.g.mapleader = " "
+-- allow switching buffers without saving (keeps changes in memory)
+vim.opt.hidden = true
+
+-- ask "Save changes to …?" instead of throwing E37/E162
+vim.opt.confirm = true
+
+-- autosave on certain actions (buffer switches, :make, etc.)
+vim.opt.autowrite = true
+-- or, more aggressive:
+-- vim.opt.autowriteall = true
+-- Faster CursorHold so floats appear quickly
+vim.o.updatetime = 250
+
+-- Clean, informative diagnostics
+vim.diagnostic.config({
+  -- ✦ inline text under the line (you already had this)
+  virtual_text = {
+    prefix = "●",
+    source = "if_many",
+    spacing = 2,
+    format = function(d)
+      local code = d.code or (d.user_data and d.user_data.lsp and d.user_data.lsp.code)
+      return code and (d.message .. " [" .. code .. "]") or d.message
+    end,
+  },
+  float = { border = "rounded", source = "if_many" },
+  underline = true,
+  severity_sort = true,
+  update_in_insert = false,
+
+  -- ✦ NEW: define diagnostic sign glyphs here (no sign_define)
+  signs = {
+    -- ASCII-friendly (you can swap to Nerd icons below)
+    text = {
+      [vim.diagnostic.severity.ERROR] = "E",
+      [vim.diagnostic.severity.WARN]  = "W",
+      [vim.diagnostic.severity.HINT]  = "H",
+      [vim.diagnostic.severity.INFO]  = "I",
+    },
+    -- Optional number-column highlighting:
+    numhl = {
+       [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+       [vim.diagnostic.severity.WARN]  = "DiagnosticSignWarn",
+       [vim.diagnostic.severity.HINT]  = "DiagnosticSignHint",
+       [vim.diagnostic.severity.INFO]  = "DiagnosticSignInfo",
+     },
+  },
+})
+
+
+-- Auto-open a small float for the current line on hover
+vim.api.nvim_create_autocmd("CursorHold", {
+  callback = function()
+    vim.diagnostic.open_float(nil, { focus = false, scope = "line" })
+  end,
+})
+-- Show diagnostics for this line now (manual)
+vim.keymap.set("n", "gl", function()
+  vim.diagnostic.open_float(nil, { focus = false, scope = "line" })
+end, { desc = "Line diagnostics" })
+
+-- Toggle inline virtual text on/off (handy when it’s noisy)
+local vt_enabled = true
+vim.keymap.set("n", "<leader>tv", function()
+  vt_enabled = not vt_enabled
+  vim.diagnostic.config({ virtual_text = vt_enabled })
+  vim.notify("virtual_text = " .. tostring(vt_enabled))
+end, { desc = "Toggle diagnostics virtual text" })
+
+-- ---- Autosave: save ~1s after you stop typing ----
+-- works in normal/insert; skips special/readonly buffers; only writes if modified
+local uv = vim.uv or vim.loop
+local autosave_timer
+local function autosave_current_buf()
+  local buf = vim.api.nvim_get_current_buf()
+  if not vim.api.nvim_buf_is_valid(buf) then return end
+  if vim.bo[buf].buftype ~= "" then return end           -- skip NvimTree, help, terminals, etc.
+  if vim.bo[buf].readonly or not vim.bo[buf].modifiable then return end
+  if vim.bo[buf].filetype == "" then return end          -- unnamed/no file yet
+  if vim.api.nvim_buf_get_option(buf, "modified") then
+    vim.cmd("silent keepalt keepjumps update")           -- write only if changed & has a filename
+  end
+end
+
+local function schedule_autosave(ms)
+  if autosave_timer then autosave_timer:stop(); autosave_timer:close() end
+  autosave_timer = uv.new_timer()
+  autosave_timer:start(ms, 0, vim.schedule_wrap(autosave_current_buf))
+end
+
+local group = vim.api.nvim_create_augroup("AutoSaveDebounce", { clear = true })
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+  group = group,
+  callback = function() schedule_autosave(1000) end,     -- 1000 ms = 1s
+})
+-- Save immediately when you leave or lose focus (safety net)
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertLeave" }, {
+  group = group,
+  callback = autosave_current_buf,
+})
+
+-- Optional: a toggle
+local autosave_enabled = true
+vim.keymap.set("n", "<leader>ta", function()
+  autosave_enabled = not autosave_enabled
+  if autosave_enabled then
+    vim.api.nvim_del_augroup_by_name("AutoSaveDebounce")
+    group = vim.api.nvim_create_augroup("AutoSaveDebounce", { clear = true })
+    vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+      group = group, callback = function() schedule_autosave(1000) end,
+    })
+    vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertLeave" }, {
+      group = group, callback = autosave_current_buf,
+    })
+    vim.notify("Autosave: ON")
+  else
+    pcall(vim.api.nvim_del_augroup_by_name, "AutoSaveDebounce")
+    vim.notify("Autosave: OFF")
+  end
+end, { desc = "Toggle autosave" })
 
 -- --- Plugins via lazy.nvim ---
 local lazy_path = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -47,6 +167,64 @@ require("lazy").setup({
 },
 -- File icons
 { "nvim-tree/nvim-web-devicons", lazy = true },
+-- Git signs in the gutter + hunk actions
+{
+  "lewis6991/gitsigns.nvim",
+  event = { "BufReadPre", "BufNewFile" },
+  opts = {
+    -- ASCII-friendly signs (works even if Nerd Font is flaky)
+    signs = {
+      add          = { text = "+" },
+      change       = { text = "~" },
+      delete       = { text = "_" },
+      topdelete    = { text = "‾" },
+      changedelete = { text = "~" },
+      untracked    = { text = "┆" },
+    },
+    current_line_blame = true,
+    current_line_blame_opts = { delay = 500 },
+    on_attach = function(bufnr)
+      local gs = package.loaded.gitsigns
+      local map = function(mode, lhs, rhs, desc)
+        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, noremap = true, desc = desc })
+      end
+      -- Navigate hunks
+      map("n", "]h", gs.next_hunk, "Next hunk")
+      map("n", "[h", gs.prev_hunk, "Prev hunk")
+      -- Stage / reset
+      map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>", "Stage hunk")
+      map({ "n", "v" }, "<leader>hr", ":Gitsigns reset_hunk<CR>", "Reset hunk")
+      map("n", "<leader>hS", gs.stage_buffer, "Stage buffer")
+      map("n", "<leader>hu", gs.undo_stage_hunk, "Undo stage hunk")
+      -- Info / diff
+      map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
+      map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
+      map("n", "<leader>hd", gs.diffthis, "Diff vs index")
+      map("n", "<leader>hD", function() gs.diffthis("~") end, "Diff vs last commit")
+      map("n", "<leader>ht", gs.toggle_current_line_blame, "Toggle line blame")
+      map("n", "<leader>hw", gs.toggle_word_diff, "Toggle word diff")
+    end,
+  },
+},
+
+-- Optional: Fugitive for porcelain (:Git, :Gdiffsplit, :Gblame, etc.)
+{
+  "tpope/vim-fugitive",
+  cmd = { "Git", "G", "Gdiffsplit", "Gvdiffsplit", "Gblame", "Gclog", "Gbrowse" },
+  keys = {
+    { "<leader>gs", "<cmd>Git<CR>",         desc = "Git status (fugitive)" },
+    { "<leader>gc", "<cmd>Git commit<CR>",  desc = "Git commit" },
+    { "<leader>gp", "<cmd>Git push<CR>",    desc = "Git push" },
+    { "<leader>gP", "<cmd>Git pull<CR>",    desc = "Git pull" },
+  },
+},
+
+-- Optional: modern diff UI (open with :DiffviewOpen)
+{
+  "sindrets/diffview.nvim",
+  cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+  config = true,
+},
 
 -- File tree
 {
@@ -149,8 +327,8 @@ require("lazy").setup({
 
 -- Optional: auto-insert matching ) ] } and integrate with completion confirm
 { "windwp/nvim-autopairs" },
+{ "christoomey/vim-tmux-navigator", lazy = false },
 })
-
 -- Basic post-setup
 require("mason").setup()
 require("mason-lspconfig").setup({
@@ -258,6 +436,12 @@ if ok_telescope then
   map("n", "<leader>fr", telescope.lsp_references, opts)   -- references
   map("n", "<leader>fs", telescope.lsp_document_symbols, opts) -- symbols in file
 end
+local tb_ok, tb = pcall(require, "telescope.builtin")
+if tb_ok then
+  vim.keymap.set("n", "<leader>gB", tb.git_branches, { desc = "Git branches" })
+  vim.keymap.set("n", "<leader>gC", tb.git_commits,  { desc = "Git commits" })
+  vim.keymap.set("n", "<leader>gS", tb.git_status,   { desc = "Git status (Telescope)" })
+end
 
 -- ===== LSP quality-of-life =====
 local on_attach = function(_, bufnr)
@@ -327,4 +511,17 @@ require("nvim-autopairs").setup({})
 local cmp_autopairs = require("nvim-autopairs.completion.cmp")
 cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 lspconfig.pyright.setup({ capabilities = capabilities, on_attach = on_attach })
+-- Use our own maps (plugin has defaults, but we take control)
+vim.g.tmux_navigator_no_mappings = 1
+
+local map = function(m, lhs, rhs)
+  vim.keymap.set(m, lhs, rhs, { silent = true, noremap = true })
+end
+
+-- Normal + Terminal modes (so it works from :terminal too)
+map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>")
+map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>")
+map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>")
+map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>")
+map({ "n", "t" }, "<C-\\>", "<cmd>TmuxNavigatePrevious<CR>")
 
