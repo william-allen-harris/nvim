@@ -15,6 +15,29 @@ This README documents how to use your Neovim setup as configured in `init.lua`. 
 * Live grep project: `<leader>fg`
 * Buffer list: `<leader>fb`
 * Help tags: `<leader>fh`
+* In Telescope picker: open selection → normal: `s` (split), `v` (vsplit), `t` (tab); insert: `<C-x>`, `<C-v>`, `<C-t>`
+
+**Tabs**
+
+* New blank tab: `:tabnew`
+* Open file in new tab: `:tabe {file}`
+* Duplicate current split into a new tab: `:tab split`
+* Move current split to its own tab: `<C-w>T`
+* Next / Prev tab: `gt` / `gT` (or `:tabnext` / `:tabprev`)
+* Jump to tab N: `{N}gt`
+* Close tab: `:tabclose` · Close others: `:tabonly`
+* Reorder tabs: `:tabmove {N}` (0 = front)
+* From plugins: **NvimTree** `t` on a file · **Telescope** `<C-t>` in insert / `t` in normal
+
+**Splits (windows)**
+
+* New horizontal split: `:split` or `<C-w>s`
+* New vertical split: `:vsplit` or `<C-w>v`
+* Move between splits: `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>` (also `<C-w>h/j/k/l`)
+* Resize: `<C-w><` / `<C-w>>` (width), `<C-w>-` / `<C-w>+` (height), `<C-w>=` (equalize)
+* Swap / rotate: `<C-w>x` (exchange) · `<C-w>r` (rotate)
+* Move split to new tab: `<C-w>T`
+* Close current split: `:close` or `<C-w>q`
 
 **LSP (per buffer)**
 
@@ -338,5 +361,5 @@ class Trade:
 
 ---
 
-*That’s it. Drop this in your repo alongside `init.lua`. Ping me if you want this split into module files with the same behavior and a generated table of contents.*
 
+-
