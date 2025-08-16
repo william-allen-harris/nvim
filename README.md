@@ -181,28 +181,170 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `ac` / `ic` - Around/Inside class
 - `ap` / `ip` - Around/Inside parameter
 
-## 🎨 Status Line Components
+## 🎨 Status Line & Toolbar Components
 
-### Left Section
-- **Mode**: Current Vim mode (single character)
-- **Macro Recording**: Shows when recording macros
-- **Git Branch**: Current branch with git icon
-- **Git Diff**: Added/modified/removed line counts
+Your Neovim statusline provides comprehensive information at a glance. Here's a detailed breakdown of every component:
 
-### Center Section
-- **Filename**: Relative path with modification indicators
-- **File Type**: With colored icons
-- **File Size**: Human-readable file size
+### 📊 Buffer Line (Top Tab Bar)
 
-### Right Section
-- **Python Environment**: 🐍 Active virtual environment
-- **LSP Status**: Active language servers
-- **Diagnostics**: Error/warning/hint/info counts
-- **Encoding**: File encoding (UTF-8, etc.)
-- **Line Endings**: LF, CRLF, or CR
-- **Location**: Line and column numbers
-- **Progress**: Percentage through file
-- **Time**: Current time (HH:MM)
+The enhanced buffer line shows all open buffers as tabs with the following features:
+
+- **File Icons**: Colored file type icons for easy identification
+- **File Names**: Truncated to fit, with full names on hover
+- **Modified Indicators**: Orange dot (●) for unsaved files
+- **Close Buttons**: Hover to reveal close buttons for each buffer
+- **Diagnostics**: Error/warning/hint counts with colored icons:
+  - 󰅚 Red for errors
+  - 󰀪 Orange for warnings  
+  - 󰌶 Blue for hints
+- **Git Integration**: Different styling for git-tracked files
+- **Smart Filtering**: Hides help and quickfix buffers automatically
+
+### 📋 Status Line Sections
+
+#### Left Section (lualine_a & lualine_b)
+
+**Mode Indicator**
+- 󰰓 **NORMAL**: Normal mode (navigation and commands)
+- 󰰅 **INSERT**: Insert mode (typing text)
+- 󰰤 **VISUAL**: Visual selection modes (V-LINE, V-BLOCK)
+- 󰰞 **COMMAND**: Command-line mode
+- 󰰟 **REPLACE/SELECT**: Replace or select modes
+- 󰰬 **TERMINAL**: Terminal mode
+
+**Macro Recording**
+- 󰑋 **@{register}**: Shows when recording a macro (e.g., "󰑋 @q")
+- Only appears when actively recording
+
+**Git Information**
+- 󰊢 **Branch Name**: Current git branch in green
+- **Diff Statistics**:
+  -  **+{count}**: Added lines (green)
+  -  **~{count}**: Modified lines (orange)
+  -  **-{count}**: Removed lines (red)
+
+**Search Results**
+- 󰍉 **{current}/{total}**: Search result position (e.g., "󰍉 3/15")
+- Only shows when search highlighting is active
+
+#### Center Section (lualine_c)
+
+**File Information**
+- **Filename**: Relative path from project root
+- **File Status Icons**:
+  - 󰳖 **Modified**: File has unsaved changes
+  - 󰌾 **Readonly**: File is read-only
+  - 󰡯 **[No Name]**: Unnamed buffer
+  - 󰎔 **[New]**: New file not yet saved
+
+**Unsaved File Indicator**
+- 󰳖 **UNSAVED**: Prominent orange indicator when file has unsaved changes
+- Disappears immediately after saving
+
+**File Type**
+- **Language Icon**: Colored icon representing the file type
+- **Language Name**: Programming language or file type
+
+**File Size**
+- 󰈔 **Size**: Human-readable file size
+  - Shows bytes (B), kilobytes (K), or megabytes (M)
+  - Cyan color for easy visibility
+
+#### Right Section (lualine_x, lualine_y, lualine_z)
+
+**Python Environment** (Python files only)
+- 󰌠 **{env_name}**: Active virtual environment
+- Green color, bold text
+- Only appears when editing Python files
+- Shows conda or virtualenv name
+
+**LSP Status**
+- 󰒋 **{server_names}**: Active Language Server Protocol clients
+- 󰌘 **No LSP**: When no language servers are running
+- Purple color for easy identification
+- Shows comma-separated list of active servers (e.g., "pyright, ruff")
+
+**Smart Diagnostics**
+- **Error States**:
+  - 󰅚 **{count}**: Error count (red, bold when errors present)
+  - 󰀪 **{count}**: Warning count (orange)
+  - 󰌶 **{count}**: Hint count (blue)
+  - 󰋽 **{count}**: Info count (cyan)
+- 󰄬 **Clean**: Green indicator when no issues exist
+- Dynamic color: red when errors present, green when clean
+
+**File Encoding** (non-UTF-8 only)
+- **UTF-8**, **UTF-16**, etc.: File character encoding
+- Gray color, only shows when not UTF-8
+- Uppercase format for clarity
+
+**Line Endings** (non-Unix only)
+- 󰌽 **LF**: Unix line endings (Linux/macOS)
+- 󰌾 **CRLF**: Windows line endings
+- 󰌼 **CR**: Classic Mac line endings
+- Gray color, only shows when not Unix format
+
+**Buffer Information**
+- 󰓩 **{current}/{total}**: Current buffer position (e.g., "󰓩 2/5")
+- Orange color for visibility
+- Shows your position in the buffer list
+
+**File Progress**
+- 󰉸 **{percentage}**: Percentage through the file (e.g., "󰉸 45%")
+- Cyan color
+- Updates as you navigate through the file
+
+**Cursor Location**
+- 󰰤 **{line}:{column}**: Current cursor position (e.g., "󰰤 142:23")
+- White color, bold text
+- Essential for navigation and debugging
+
+**System Time**
+- 󰥔 **{HH:MM}**: Current time in 24-hour format
+- Bold cyan color
+- Useful for time tracking during coding sessions
+
+### 🎯 Color Coding System
+
+The statusline uses a consistent color scheme based on Monokai Pro:
+
+- **🔴 Red (#ff6188)**: Errors, critical issues, remove operations
+- **🟠 Orange (#fc9867)**: Warnings, modifications, unsaved changes
+- **🟢 Green (#a9dc76)**: Success states, additions, git branch, Python env
+- **🔵 Cyan (#78dce8)**: Information, file size, search results, time
+- **🟣 Purple (#ab9df2)**: LSP servers, file types, special features
+- **⚪ White (#fcfcfa)**: Primary text, filenames, cursor location
+- **⚫ Gray (#727072)**: Secondary information, encoding, line endings
+
+### 🔧 Interactive Features
+
+**Hover Actions**
+- **Buffer tabs**: Hover to see close buttons
+- **Components**: Some components show additional information on hover
+
+**Click Actions** (if mouse is enabled)
+- **Buffer tabs**: Click to switch, right-click to close
+- **Mode indicator**: May trigger mode-specific actions
+- **Git diff**: Click to navigate to changes
+
+### 🎨 Inactive Window Styling
+
+When a window is inactive, the statusline shows minimal information:
+- **Filename**: With modification indicators
+- **Location**: Basic cursor position
+- **Subdued colors**: Gray tones to indicate inactive state
+
+This comprehensive statusline gives you everything you need to understand your current development context at a glance, from file status and git information to Python environments and system diagnostics.
+
+## 🎯 Status Line Tips
+
+1. **Monitor the diagnostics**: The smart diagnostics component changes color to red when errors are present
+2. **Track unsaved changes**: The prominent "UNSAVED" indicator ensures you never lose work
+3. **Environment awareness**: The Python environment indicator helps you stay in the right virtual environment
+4. **Git workflow**: Use the diff statistics to see your changes at a glance
+5. **Buffer navigation**: The buffer count helps you keep track of open files
+6. **Search progress**: The search counter shows your position in search results
+7. **Time tracking**: The clock helps with time management during coding sessions
 
 ## 🛠️ Installation & Setup
 

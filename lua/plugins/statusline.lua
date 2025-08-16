@@ -341,12 +341,32 @@ return {
       end
 
       local function search_count()
+        -- Only show while actively searching (command-line type is '/' or '?')
+        local cmd = vim.fn.getcmdtype()
+        if cmd ~= '/' and cmd ~= '?' then
+          return ""
+        end
+        
+        -- Also require search highlighting to be on
         if vim.v.hlsearch == 0 then
           return ""
         end
         
-        local ok, result = pcall(vim.fn.searchcount, {maxcount = 999, timeout = 100})
-        if not ok or not result or result.total == 0 then
+        -- Validate the search pattern
+        local search_pattern = vim.fn.getreg('/')
+        if not search_pattern or search_pattern == '' or search_pattern == '\\%^' then
+          return ""
+        end
+        
+        -- Ensure the pattern actually exists in the current buffer
+        local found_pos = vim.fn.searchpos(search_pattern, 'nw')
+        if found_pos[1] == 0 and found_pos[2] == 0 then
+          return ""
+        end
+        
+        -- Compute the current/total counts
+        local ok, result = pcall(vim.fn.searchcount, { maxcount = 999, timeout = 100 })
+        if not ok or not result or result.total == 0 or result.current == 0 then
           return ""
         end
         
@@ -418,10 +438,30 @@ return {
                 modified = { fg = "#fc9867" },
                 removed = { fg = "#ff6188" },
               },
+              source = function()
+                local gitsigns = vim.b.gitsigns_status_dict
+                if gitsigns then
+                  return {
+                    added = gitsigns.added,
+                    modified = gitsigns.changed,
+                    removed = gitsigns.removed
+                  }
+                end
+              end,
             },
             {
               search_count,
               color = { fg = "#78dce8" },
+              cond = function()
+                -- Only when actively typing a search
+                local cmd = vim.fn.getcmdtype()
+                if cmd ~= '/' and cmd ~= '?' then return false end
+                if vim.v.hlsearch == 0 then return false end
+                local pattern = vim.fn.getreg('/')
+                if not pattern or pattern == '' or pattern == '\\%^' then return false end
+                local found = vim.fn.searchpos(pattern, 'nw')
+                return found[1] > 0 and found[2] > 0
+              end,
             },
           },
           lualine_c = {
