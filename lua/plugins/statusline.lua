@@ -353,6 +353,13 @@ return {
         return string.format("󰍉 %d/%d", result.current, result.total)
       end
 
+      local function modified_indicator()
+        if vim.bo.modified then
+          return "󰳖 UNSAVED"
+        end
+        return ""
+      end
+
       lualine.setup({
         options = {
           theme = "monokai-pro",
@@ -433,6 +440,10 @@ return {
               color = { fg = "#fcfcfa", gui = "bold" },
             },
             {
+              modified_indicator,
+              color = { fg = "#fc9867", gui = "bold" },
+            },
+            {
               "filetype",
               colored = true,
               icon_only = false,
@@ -503,7 +514,7 @@ return {
             {
               "datetime",
               style = "󰥔 %H:%M",
-              color = { fg = "#ab9df2", gui = "bold" },
+              color = { gui = "bold" },
             },
           },
         },
