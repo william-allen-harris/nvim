@@ -88,7 +88,7 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>gC` - Git commits
 - `<leader>gS` - Git status (Telescope)
 - `<leader>gf` - Git files
-- `<leader>gb` - Toggle git blame (virtual text)
+- `<leader>gb` - Toggle git blame virtual text (gitsigns)
 - `<leader>hb` - Show blame line (popup)
 - `<leader>ht` - Toggle gitsigns line blame
 - `<leader>hs` - Stage hunk
@@ -122,7 +122,6 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>bd` - Delete buffer (smart - goes to next)
 - `<leader>bx` - Delete buffer (default)
 - `<leader>bD` - Force delete buffer
-- `<Ctrl-w>` - Close buffer (smart deletion)
 - `<leader>bp` - Toggle buffer pin
 - `<leader>bo` - Delete other buffers
 - `<Alt-1>` to `<Alt-9>` - Jump to buffer by number
@@ -145,8 +144,10 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>F` - Format buffer
 
 #### Toggles
-- `<leader>tv` - Toggle virtual text diagnostics
+- `<leader>tv` - Toggle virtual text diagnostics (starts disabled)
 - `<leader>ta` - Toggle autosave
+- `<leader>gb` - Toggle git blame virtual text (gitsigns)
+- `<leader>ht` - Toggle gitsigns line blame
 
 #### Workspace
 - `<leader>xx` - Toggle diagnostics (Trouble)

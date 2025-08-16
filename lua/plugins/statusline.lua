@@ -301,6 +301,13 @@ return {
         return ""
       end
 
+      local function modified_indicator()
+        if vim.bo.modified then
+          return "● UNSAVED"
+        end
+        return ""
+      end
+
       lualine.setup({
         options = {
           theme = "monokai-pro",
@@ -360,6 +367,10 @@ return {
                 unnamed = "[No Name]",
                 newfile = "[New]",
               },
+            },
+            {
+              modified_indicator,
+              color = { fg = "#fc9867", gui = "bold" },
             },
             {
               "filetype",
@@ -426,20 +437,6 @@ return {
         inactive_winbar = {},
         extensions = { "nvim-tree", "toggleterm", "fugitive" },
       })
-    end,
-  },
-
-  -- Git blame in virtual text (complementary to gitsigns)
-  {
-    "f-person/git-blame.nvim",
-    event = "BufReadPost",
-    config = function()
-      vim.g.gitblame_enabled = 0 -- Start disabled, toggle with command
-      vim.g.gitblame_message_template = "<summary> • <date> • <author>"
-      vim.g.gitblame_highlight_group = "Comment"
-      vim.g.gitblame_date_format = "%r"
-      
-      vim.keymap.set("n", "<leader>gb", "<cmd>GitBlameToggle<cr>", { desc = "Toggle git blame" })
     end,
   },
 }

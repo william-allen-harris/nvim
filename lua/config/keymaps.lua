@@ -110,9 +110,6 @@ map("n", "<leader>bx", "<cmd>bdelete<cr>", { desc = "Delete buffer (default)" })
 map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 
--- Close buffer with Ctrl+w (using fast method)
-map("n", "<C-w>", fast_delete_buffer, { desc = "Close buffer" })
-
 -- Alternative vim-style buffer navigation
 map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
@@ -123,10 +120,27 @@ map("n", "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 map("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "[b", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 
--- Quick buffer switching (Alt + number)
+-- Quick buffer switching (Alt + number for ordinal position)
 for i = 1, 9 do
   map("n", "<A-" .. i .. ">", "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", { desc = "Go to buffer " .. i })
 end
+
+-- Leader + number for buffer jumping (like Harpoon style but for buffers 5-9)
+-- Note: <leader>1-4 are reserved for Harpoon files
+for i = 5, 9 do
+  map("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", { desc = "Go to buffer " .. i })
+end
+
+-- Quick access to first few buffers with alternative keys
+map("n", "<leader>b1", "<cmd>BufferLineGoToBuffer 1<cr>", { desc = "Go to buffer 1" })
+map("n", "<leader>b2", "<cmd>BufferLineGoToBuffer 2<cr>", { desc = "Go to buffer 2" })
+map("n", "<leader>b3", "<cmd>BufferLineGoToBuffer 3<cr>", { desc = "Go to buffer 3" })
+map("n", "<leader>b4", "<cmd>BufferLineGoToBuffer 4<cr>", { desc = "Go to buffer 4" })
+map("n", "<leader>b5", "<cmd>BufferLineGoToBuffer 5<cr>", { desc = "Go to buffer 5" })
+map("n", "<leader>b6", "<cmd>BufferLineGoToBuffer 6<cr>", { desc = "Go to buffer 6" })
+map("n", "<leader>b7", "<cmd>BufferLineGoToBuffer 7<cr>", { desc = "Go to buffer 7" })
+map("n", "<leader>b8", "<cmd>BufferLineGoToBuffer 8<cr>", { desc = "Go to buffer 8" })
+map("n", "<leader>b9", "<cmd>BufferLineGoToBuffer 9<cr>", { desc = "Go to buffer 9" })
 
 -- Return setup functions for lazy loading
 return {

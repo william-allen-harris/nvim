@@ -3,15 +3,7 @@
 -- └──────────────────────────────────────────┘
 
 vim.diagnostic.config({
-  virtual_text = {
-    prefix = "●",
-    source = "if_many",
-    spacing = 2,
-    format = function(d)
-      local code = d.code or (d.user_data and d.user_data.lsp and d.user_data.lsp.code)
-      return code and (d.message .. " [" .. code .. "]") or d.message
-    end,
-  },
+  virtual_text = false, -- Hide virtual text by default
   float = { border = "rounded", source = "if_many" },
   underline = true,
   severity_sort = true,
@@ -44,7 +36,7 @@ vim.keymap.set("n", "gl", function()
 end, { desc = "Line diagnostics" })
 
 -- Toggle inline diagnostics
-local vt_enabled = true
+local vt_enabled = false -- Start with virtual text disabled
 vim.keymap.set("n", "<leader>tv", function()
   vt_enabled = not vt_enabled
   vim.diagnostic.config({ virtual_text = vt_enabled })
@@ -52,7 +44,7 @@ vim.keymap.set("n", "<leader>tv", function()
 end, { desc = "Toggle diagnostics virtual text" })
 
 -- ┌───────────────────────────────┐
--- │ Debounced autosave (1 second) │
+-- │ Autosave on InsertLeave only  │
 -- └───────────────────────────────┘
 local uv = vim.uv or vim.loop
 local autosave_timer
@@ -66,18 +58,21 @@ local function autosave_current_buf()
     vim.cmd("silent keepalt keepjumps update")
   end
 end
+
 local function schedule_autosave(ms)
   if autosave_timer then autosave_timer:stop(); autosave_timer:close() end
   autosave_timer = uv.new_timer()
   autosave_timer:start(ms, 0, vim.schedule_wrap(autosave_current_buf))
 end
 
-local autosave_group = vim.api.nvim_create_augroup("AutoSaveDebounce", { clear = true })
-vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+local autosave_group = vim.api.nvim_create_augroup("AutoSaveOnInsertLeave", { clear = true })
+-- Only autosave when leaving insert mode with 1 second delay
+vim.api.nvim_create_autocmd("InsertLeave", {
   group = autosave_group,
-  callback = function() schedule_autosave(1000) end,
+  callback = function() schedule_autosave(1000) end, -- 1 second delay
 })
-vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertLeave" }, {
+-- Also save on focus lost and buffer leave for safety
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
   group = autosave_group,
   callback = autosave_current_buf,
 })
@@ -87,17 +82,21 @@ local autosave_enabled = true
 vim.keymap.set("n", "<leader>ta", function()
   autosave_enabled = not autosave_enabled
   if autosave_enabled then
-    vim.api.nvim_del_augroup_by_name("AutoSaveDebounce")
-    autosave_group = vim.api.nvim_create_augroup("AutoSaveDebounce", { clear = true })
-    vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-      group = autosave_group, callback = function() schedule_autosave(1000) end,
+    vim.api.nvim_del_augroup_by_name("AutoSaveOnInsertLeave")
+    autosave_group = vim.api.nvim_create_augroup("AutoSaveOnInsertLeave", { clear = true })
+    -- Only autosave when leaving insert mode with 1 second delay
+    vim.api.nvim_create_autocmd("InsertLeave", {
+      group = autosave_group,
+      callback = function() schedule_autosave(1000) end, -- 1 second delay
     })
-    vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertLeave" }, {
-      group = autosave_group, callback = autosave_current_buf,
+    -- Also save on focus lost and buffer leave for safety
+    vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
+      group = autosave_group,
+      callback = autosave_current_buf,
     })
-    vim.notify("Autosave: ON")
+    vim.notify("Autosave: ON (InsertLeave + 1s delay)")
   else
-    pcall(vim.api.nvim_del_augroup_by_name, "AutoSaveDebounce")
+    pcall(vim.api.nvim_del_augroup_by_name, "AutoSaveOnInsertLeave")
     vim.notify("Autosave: OFF")
   end
 end, { desc = "Toggle autosave" })

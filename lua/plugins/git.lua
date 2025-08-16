@@ -38,6 +38,7 @@ return {
         map("n", "<leader>hu", gs.undo_stage_hunk, "Undo stage hunk")
         map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
         map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line (popup)")
+        map("n", "<leader>gb", gs.toggle_current_line_blame, "Toggle git blame virtual text")
         map("n", "<leader>hd", gs.diffthis, "Diff vs index")
         map("n", "<leader>hD", function() gs.diffthis("~") end, "Diff vs last commit")
         map("n", "<leader>ht", gs.toggle_current_line_blame, "Toggle gitsigns line blame")
