@@ -334,7 +334,7 @@ return {
           },
           lualine_b = {
             {
-              "branch",R 
+              "branch",
               icon = "",
             },
             {
