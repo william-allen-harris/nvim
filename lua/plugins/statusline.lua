@@ -14,28 +14,28 @@ return {
         options = {
           mode = "buffers",
           themable = true,
-          numbers = "ordinal",
+          numbers = "none", -- Remove numbers from tabs
           close_command = "bdelete! %d",
           right_mouse_command = "bdelete! %d",
           left_mouse_command = "buffer %d",
           middle_mouse_command = nil,
           indicator = {
-            icon = "▎",
+            icon = "▍", -- Slightly thicker indicator
             style = "icon",
           },
-          buffer_close_icon = "󰅖",
+          buffer_close_icon = "󰖭",
           modified_icon = "●",
-          close_icon = "",
-          left_trunc_marker = "",
-          right_trunc_marker = "",
-          max_name_length = 18,
+          close_icon = "󰅖",
+          left_trunc_marker = "󰁍",
+          right_trunc_marker = "󰁔",
+          max_name_length = 20, -- Slightly longer names
           max_prefix_length = 15,
           truncate_names = true,
-          tab_size = 18,
+          tab_size = 20,
           diagnostics = "nvim_lsp",
           diagnostics_update_in_insert = false,
           diagnostics_indicator = function(count, level, diagnostics_dict, context)
-            local icon = level:match("error") and " " or " "
+            local icon = level:match("error") and "󰅚 " or level:match("warn") and "󰀪 " or "󰌶 "
             return " " .. icon .. count
           end,
           custom_filter = function(buf_number, buf_numbers)
@@ -47,7 +47,13 @@ return {
           offsets = {
             {
               filetype = "NvimTree",
-              text = "File Explorer",
+              text = "󰙅 File Explorer",
+              text_align = "center",
+              separator = true,
+            },
+            {
+              filetype = "aerial",
+              text = "󰙅 Outline",
               text_align = "center",
               separator = true,
             }
@@ -58,12 +64,12 @@ return {
           show_close_icon = true,
           show_tab_indicators = true,
           persist_buffer_sort = true,
-          separator_style = "slant",
+          separator_style = "thin", -- Cleaner look
           enforce_regular_tabs = false,
           always_show_bufferline = true,
           hover = {
             enabled = true,
-            delay = 200,
+            delay = 150, -- Faster hover response
             reveal = {"close"},
           },
           sort_by = "insert_after_current",
@@ -213,12 +219,12 @@ return {
     config = function()
       local lualine = require("lualine")
       
-      -- Custom components for Python development
+      -- Custom components for enhanced user experience
       local function python_venv()
         local venv = vim.env.VIRTUAL_ENV or vim.env.CONDA_DEFAULT_ENV
         if venv then
           local venv_name = vim.fn.fnamemodify(venv, ":t")
-          return "🐍 " .. venv_name
+          return "󰌠 " .. venv_name
         end
         return ""
       end
@@ -237,17 +243,26 @@ return {
         end
         
         if #clients == 0 then
-          return ""
+          return "󰌘 No LSP"
         end
         
-        local client_names = {}
+        -- Use a set to deduplicate client names
+        local client_names_set = {}
         for _, client in ipairs(clients) do
-          table.insert(client_names, client.name)
+          client_names_set[client.name] = true
         end
-        return "LSP: " .. table.concat(client_names, ", ")
+        
+        -- Convert set back to array
+        local client_names = {}
+        for name, _ in pairs(client_names_set) do
+          table.insert(client_names, name)
+        end
+        
+        table.sort(client_names) -- Sort for consistent display
+        return "󰒋 " .. table.concat(client_names, ", ")
       end
 
-      local function diagnostics_count()
+      local function smart_diagnostics()
         local diagnostics = vim.diagnostic.get(0)
         local count = { errors = 0, warnings = 0, info = 0, hints = 0 }
         
@@ -264,64 +279,94 @@ return {
         end
         
         local parts = {}
-        if count.errors > 0 then table.insert(parts, "E:" .. count.errors) end
-        if count.warnings > 0 then table.insert(parts, "W:" .. count.warnings) end
-        if count.hints > 0 then table.insert(parts, "H:" .. count.hints) end
-        if count.info > 0 then table.insert(parts, "I:" .. count.info) end
+        if count.errors > 0 then table.insert(parts, "󰅚 " .. count.errors) end
+        if count.warnings > 0 then table.insert(parts, "󰀪 " .. count.warnings) end
+        if count.hints > 0 then table.insert(parts, "󰌶 " .. count.hints) end
+        if count.info > 0 then table.insert(parts, "󰋽 " .. count.info) end
+        
+        if #parts == 0 then
+          return "󰄬 Clean"
+        end
         
         return table.concat(parts, " ")
       end
 
       local function git_blame()
         local blame = vim.b.gitsigns_blame_line
-        if blame and blame ~= "" then
-          return "󰊢 " .. blame
+        if blame and blame ~= "" and blame ~= "Not Committed Yet" then
+          local author = blame:match("([^,]+)")
+          if author and #author > 15 then
+            author = author:sub(1, 12) .. "..."
+          end
+          return "󰊢 " .. (author or "Unknown")
         end
         return ""
       end
 
-      local function file_size()
+      local function smart_file_size()
         local size = vim.fn.getfsize(vim.fn.expand("%:p"))
         if size < 0 then
           return ""
         elseif size < 1024 then
-          return size .. "B"
+          return "󰈔 " .. size .. "B"
         elseif size < 1024 * 1024 then
-          return string.format("%.1fK", size / 1024)
+          return "󰈔 " .. string.format("%.1fK", size / 1024)
         else
-          return string.format("%.1fM", size / (1024 * 1024))
+          return "󰈔 " .. string.format("%.1fM", size / (1024 * 1024))
         end
       end
 
       local function macro_recording()
         local recording = vim.fn.reg_recording()
         if recording ~= "" then
-          return "Recording @" .. recording
+          return "󰑋 @" .. recording
         end
         return ""
       end
 
-      local function modified_indicator()
-        if vim.bo.modified then
-          return "● UNSAVED"
+      local function buffer_info()
+        local buf_count = #vim.fn.getbufinfo({buflisted = 1})
+        local current_buf = vim.api.nvim_get_current_buf()
+        local buf_list = vim.fn.getbufinfo({buflisted = 1})
+        local current_index = 1
+        
+        for i, buf in ipairs(buf_list) do
+          if buf.bufnr == current_buf then
+            current_index = i
+            break
+          end
         end
-        return ""
+        
+        return string.format("󰓩 %d/%d", current_index, buf_count)
+      end
+
+      local function search_count()
+        if vim.v.hlsearch == 0 then
+          return ""
+        end
+        
+        local ok, result = pcall(vim.fn.searchcount, {maxcount = 999, timeout = 100})
+        if not ok or not result or result.total == 0 then
+          return ""
+        end
+        
+        return string.format("󰍉 %d/%d", result.current, result.total)
       end
 
       lualine.setup({
         options = {
           theme = "monokai-pro",
-          component_separators = { left = "", right = "" },
+          component_separators = { left = "│", right = "│" },
           section_separators = { left = "", right = "" },
           disabled_filetypes = {
-            statusline = { "NvimTree", "alpha", "dashboard" },
+            statusline = { "NvimTree", "alpha", "dashboard", "aerial", "toggleterm" },
             winbar = {},
           },
           ignore_focus = {},
           always_divide_middle = true,
           globalstatus = true,
           refresh = {
-            statusline = 1000,
+            statusline = 500, -- Faster refresh for better responsiveness
             tabline = 1000,
             winbar = 1000,
           },
@@ -331,55 +376,71 @@ return {
             {
               "mode",
               fmt = function(str)
-                return str:sub(1, 1)
+                local mode_map = {
+                  ["NORMAL"] = "󰰓 NORMAL",
+                  ["INSERT"] = "󰰅 INSERT", 
+                  ["VISUAL"] = "󰰤 VISUAL",
+                  ["V-LINE"] = "󰰤 V-LINE",
+                  ["V-BLOCK"] = "󰰤 V-BLOCK",
+                  ["COMMAND"] = "󰰞 COMMAND",
+                  ["REPLACE"] = "󰰟 REPLACE",
+                  ["TERMINAL"] = "󰰬 TERMINAL",
+                  ["SELECT"] = "󰰟 SELECT"
+                }
+                return mode_map[str] or "󰰓 " .. str:sub(1, 1)
               end,
+              separator = { right = "" },
             },
             {
               macro_recording,
               color = { fg = "#ff6188", gui = "bold" },
+              cond = function() return vim.fn.reg_recording() ~= "" end,
             },
           },
           lualine_b = {
             {
               "branch",
-              icon = "",
+              icon = "󰊢", -- Git branch icon
+              color = { fg = "#a9dc76", gui = "bold" },
             },
             {
               "diff",
-              symbols = { added = " ", modified = " ", removed = " " },
+              symbols = { added = "󰐖 ", modified = "󰏬 ", removed = "󰍵 " },
               diff_color = {
                 added = { fg = "#a9dc76" },
                 modified = { fg = "#fc9867" },
                 removed = { fg = "#ff6188" },
               },
             },
+            {
+              search_count,
+              color = { fg = "#78dce8" },
+            },
           },
           lualine_c = {
             {
               "filename",
               file_status = true,
-              newfile_status = false,
-              path = 1, -- 0: filename, 1: relative path, 2: absolute path, 3: absolute path with ~ home
-              shorting_target = 40,
+              newfile_status = true,
+              path = 1, -- Relative path
+              shorting_target = 30,
               symbols = {
-                modified = "●",
-                readonly = "",
-                unnamed = "[No Name]",
-                newfile = "[New]",
+                modified = "󰳖 ",
+                readonly = "󰌾 ",
+                unnamed = "󰡯 [No Name]",
+                newfile = "󰎔 [New]",
               },
-            },
-            {
-              modified_indicator,
-              color = { fg = "#fc9867", gui = "bold" },
+              color = { fg = "#fcfcfa", gui = "bold" },
             },
             {
               "filetype",
               colored = true,
               icon_only = false,
-              icon = { align = "right" },
+              icon = { align = "left" },
+              color = { fg = "#ab9df2" },
             },
             {
-              file_size,
+              smart_file_size,
               color = { fg = "#78dce8" },
             },
           },
@@ -387,55 +448,93 @@ return {
             {
               python_venv,
               color = { fg = "#a9dc76", gui = "bold" },
+              cond = function() return vim.bo.filetype == "python" end,
             },
             {
               lsp_status,
               color = { fg = "#ab9df2" },
             },
             {
-              diagnostics_count,
-              color = { fg = "#ff6188" },
+              smart_diagnostics,
+              color = function()
+                local diagnostics = vim.diagnostic.get(0)
+                for _, diagnostic in ipairs(diagnostics) do
+                  if diagnostic.severity == vim.diagnostic.severity.ERROR then
+                    return { fg = "#ff6188", gui = "bold" }
+                  end
+                end
+                return { fg = "#a9dc76" }
+              end,
             },
             {
               "encoding",
               fmt = string.upper,
+              color = { fg = "#727072" },
+              cond = function() return vim.bo.fileencoding ~= "utf-8" end,
             },
             {
               "fileformat",
               symbols = {
-                unix = "LF",
-                dos = "CRLF",
-                mac = "CR",
+                unix = "󰌽 LF",
+                dos = "󰌾 CRLF", 
+                mac = "󰌼 CR",
               },
+              color = { fg = "#727072" },
+              cond = function() return vim.bo.fileformat ~= "unix" end,
             },
           },
           lualine_y = {
             {
+              buffer_info,
+              color = { fg = "#fc9867" },
+            },
+            {
               "progress",
+              fmt = function(str) return "󰉸 " .. str end,
+              color = { fg = "#78dce8" },
             },
             {
               "location",
+              fmt = function(str) return "󰰤 " .. str end,
+              color = { fg = "#fcfcfa", gui = "bold" },
             },
           },
           lualine_z = {
             {
               "datetime",
-              style = "%H:%M",
+              style = "󰥔 %H:%M",
+              color = { fg = "#ab9df2", gui = "bold" },
             },
           },
         },
         inactive_sections = {
           lualine_a = {},
           lualine_b = {},
-          lualine_c = { "filename" },
-          lualine_x = { "location" },
+          lualine_c = { 
+            {
+              "filename",
+              path = 1,
+              symbols = {
+                modified = "󰳖 ",
+                readonly = "󰌾 ",
+                unnamed = "󰡯 [No Name]",
+              },
+              color = { fg = "#727072" },
+            }
+          },
+          lualine_x = { 
+            {
+              "location",
+              color = { fg = "#727072" },
+            }
+          },
           lualine_y = {},
           lualine_z = {},
         },
         tabline = {},
         winbar = {},
         inactive_winbar = {},
-        extensions = { "nvim-tree", "toggleterm", "fugitive" },
+        extensions = { "nvim-tree", "toggleterm", "fugitive", "aerial", "quickfix" },
       })
     end,
   },

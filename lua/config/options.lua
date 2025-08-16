@@ -19,6 +19,10 @@ opt.confirm = true                   -- prompt instead of E37/E162
 opt.autowrite = true                 -- autosave on certain actions
 vim.o.updatetime = 250               -- faster CursorHold
 
+-- Set background and default colorscheme fallback
+opt.background = "dark"
+vim.g.colors_name = "monokai-pro"    -- Default colorscheme preference
+
 -- Completion
 opt.completeopt = "menu,menuone,noselect"
 

@@ -161,6 +161,26 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>h` - Toggle harpoon menu
 - `<leader>1-4` - Navigate to harpoon files 1-4
 
+#### Buffer Tab Navigation
+- `<leader>b1-9` - Jump to buffer by tab number (matches displayed numbers)
+- `<Alt-1>` to `<Alt-9>` - Alternative buffer jumping by number
+
+#### Function & Class Navigation (Treesitter)
+- `]m` / `[m` - Next/Previous function start
+- `]M` / `[M` - Next/Previous function end
+- `]]` / `[[` - Next/Previous class start  
+- `][` / `[]` - Next/Previous class end
+- `]c` / `[c` - Next/Previous comment
+- `]s` / `[s` - Next/Previous statement
+- `]o` / `[o` - Next/Previous loop
+- `]a` / `[a` - Next/Previous parameter
+- `]z` / `[z` - Next/Previous fold
+
+#### Text Objects (Select/Delete/Change)
+- `af` / `if` - Around/Inside function
+- `ac` / `ic` - Around/Inside class
+- `ap` / `ip` - Around/Inside parameter
+
 ## 🎨 Status Line Components
 
 ### Left Section

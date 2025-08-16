@@ -131,16 +131,33 @@ for i = 5, 9 do
   map("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", { desc = "Go to buffer " .. i })
 end
 
--- Quick access to first few buffers with alternative keys
-map("n", "<leader>b1", "<cmd>BufferLineGoToBuffer 1<cr>", { desc = "Go to buffer 1" })
-map("n", "<leader>b2", "<cmd>BufferLineGoToBuffer 2<cr>", { desc = "Go to buffer 2" })
-map("n", "<leader>b3", "<cmd>BufferLineGoToBuffer 3<cr>", { desc = "Go to buffer 3" })
-map("n", "<leader>b4", "<cmd>BufferLineGoToBuffer 4<cr>", { desc = "Go to buffer 4" })
-map("n", "<leader>b5", "<cmd>BufferLineGoToBuffer 5<cr>", { desc = "Go to buffer 5" })
-map("n", "<leader>b6", "<cmd>BufferLineGoToBuffer 6<cr>", { desc = "Go to buffer 6" })
-map("n", "<leader>b7", "<cmd>BufferLineGoToBuffer 7<cr>", { desc = "Go to buffer 7" })
-map("n", "<leader>b8", "<cmd>BufferLineGoToBuffer 8<cr>", { desc = "Go to buffer 8" })
-map("n", "<leader>b9", "<cmd>BufferLineGoToBuffer 9<cr>", { desc = "Go to buffer 9" })
+-- Quick access to buffers by ordinal position (matches the numbers shown in bufferline)
+local function goto_buffer_by_ordinal(num)
+  return function()
+    local ok, bufferline_state = pcall(require, "bufferline.state")
+    if not ok then
+      vim.notify("BufferLine not available", vim.log.levels.WARN)
+      return
+    end
+    
+    local buffers = bufferline_state.components
+    if buffers and buffers[num] then
+      vim.api.nvim_set_current_buf(buffers[num].id)
+    else
+      vim.notify("Buffer " .. num .. " not found", vim.log.levels.WARN)
+    end
+  end
+end
+
+map("n", "<leader>b1", goto_buffer_by_ordinal(1), { desc = "Go to buffer 1" })
+map("n", "<leader>b2", goto_buffer_by_ordinal(2), { desc = "Go to buffer 2" })
+map("n", "<leader>b3", goto_buffer_by_ordinal(3), { desc = "Go to buffer 3" })
+map("n", "<leader>b4", goto_buffer_by_ordinal(4), { desc = "Go to buffer 4" })
+map("n", "<leader>b5", goto_buffer_by_ordinal(5), { desc = "Go to buffer 5" })
+map("n", "<leader>b6", goto_buffer_by_ordinal(6), { desc = "Go to buffer 6" })
+map("n", "<leader>b7", goto_buffer_by_ordinal(7), { desc = "Go to buffer 7" })
+map("n", "<leader>b8", goto_buffer_by_ordinal(8), { desc = "Go to buffer 8" })
+map("n", "<leader>b9", goto_buffer_by_ordinal(9), { desc = "Go to buffer 9" })
 
 -- Return setup functions for lazy loading
 return {
