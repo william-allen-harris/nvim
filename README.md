@@ -1,365 +1,231 @@
-# Neovim Setup — Commands & Usage Guide
+# 🚀 Comprehensive Neovim Configuration for Python Development
 
-This README documents how to use your Neovim setup as configured in `init.lua`. It includes a top-level quick reference and plugin-specific sections with examples. **All commands and keymaps below reflect the current configuration**—no extra plugins or mappings are assumed.
+A modern, modular Neovim configuration optimized for Python development with a comprehensive status bar and enhanced UI.
 
-> **Notation**: `<leader>` is the **Space** key (`vim.g.mapleader = " "`).
+## 📁 Directory Structure
 
----
-
-## TL;DR Cheat Sheet (Most Used)
-
-**Files & Search**
-
-* Toggle file tree: `<leader>e`
-* Find files: `<leader>ff`
-* Live grep project: `<leader>fg`
-* Buffer list: `<leader>fb`
-* Help tags: `<leader>fh`
-* In Telescope picker: open selection → normal: `s` (split), `v` (vsplit), `t` (tab); insert: `<C-x>`, `<C-v>`, `<C-t>`
-
-**Tabs**
-
-* New blank tab: `:tabnew`
-* Open file in new tab: `:tabe {file}`
-* Duplicate current split into a new tab: `:tab split`
-* Move current split to its own tab: `<C-w>T`
-* Next / Prev tab: `gt` / `gT` (or `:tabnext` / `:tabprev`)
-* Jump to tab N: `{N}gt`
-* Close tab: `:tabclose` · Close others: `:tabonly`
-* Reorder tabs: `:tabmove {N}` (0 = front)
-* From plugins: **NvimTree** `t` on a file · **Telescope** `<C-t>` in insert / `t` in normal
-
-**Splits (windows)**
-
-* New horizontal split: `:split` or `<C-w>s`
-* New vertical split: `:vsplit` or `<C-w>v`
-* Move between splits: `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>` (also `<C-w>h/j/k/l`)
-* Resize: `<C-w><` / `<C-w>>` (width), `<C-w>-` / `<C-w>+` (height), `<C-w>=` (equalize)
-* Swap / rotate: `<C-w>x` (exchange) · `<C-w>r` (rotate)
-* Move split to new tab: `<C-w>T`
-* Close current split: `:close` or `<C-w>q`
-
-**LSP (per buffer)**
-
-* Go to definition: `gd`  ·  Declaration: `gD`  ·  References: `gr`  ·  Implementation: `gi`
-* Hover docs: `K` · Rename symbol: `<leader>rn` · Code action: `<leader>ca`
-* Diagnostics: previous `[d` · next `]d` · line popup: `gl` · list: `<leader>fd`
-
-**Git**
-
-* Status (Fugitive): `<leader>gs` · Commit: `<leader>gc` · Push: `<leader>gp` · Pull: `<leader>gP`
-* Hunks (Gitsigns): next `]h` · prev `[h` · stage `<leader>hs` · reset `<leader>hr` · preview `<leader>hp`
-
-**Python / Formatting**
-
-* Select Python venv: `<leader>vs` (or `:VenvSelect`)
-* Format buffer (Conform → Ruff): `<leader>F`
-
-**Quality of life**
-
-* Toggle autosave: `<leader>ta` (1s idle save; also on focus/leave)
-* Toggle inline diagnostics: `<leader>tv`
-* Harpoon: add `<leader>a` · menu `<leader>h` · jump `<leader>1..4`
-* Tmux splits: `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>`, previous `<C-\>`
-
----
-
-## Core Behavior
-
-### Diagnostics (Neovim built-in)
-
-* Inline diagnostics are **enabled** with `●` prefix and show source/code when available.
-* A floating window appears on **hover** (`CursorHold`) for the current line.
-* **Manual line popup**: `gl`
-* **Toggle inline diagnostics**: `<leader>tv`
-
-### Autosave
-
-* Debounced save **\~1s after typing stops** and on `BufLeave`, `FocusLost`, `InsertLeave`.
-* Saves only normal, modifiable, named buffers; skips help/term/NvimTree.
-* **Toggle**: `<leader>ta` (re-creates/removes autocmd group).
-
-### Completion & Snippets
-
-* Trigger completion: `<C-Space>`
-* Confirm selection: `<CR>` (selects current item if none preselected)
-* Navigate menu / expand snippets: `<Tab>` forward, `<S-Tab>` backward
-* Snippets provided via **LuaSnip** + `friendly-snippets` (loaded lazily).
-
-### Formatting (Conform)
-
-* `python`: runs `ruff_fix` then `ruff_format`.
-* **On-save** formatting enabled for Python (`lsp_fallback = false`).
-* **Manual**: `<leader>F`.
-
----
-
-## Plugins & Commands
-
-### File Tree — `nvim-tree`
-
-* **Toggle**: `<leader>e`
-* Follows the current file and updates root.
-* Width: 36 cols; shows dotfiles; does not hide git-ignored files.
-
-**Useful actions inside tree** (default `nvim-tree` bindings):
-
-* Open: `<CR>` / `o` · Split: `s` · Vsplit: `v` · Tab: `t`
-* Create: `a` · Remove: `d` · Rename: `r` · Refresh: `R`
-
----
-
-### Fuzzy Finder — `telescope.nvim`
-
-* **Find files**: `<leader>ff`
-* **Live grep**: `<leader>fg` *(requires `ripgrep`)*
-* **Buffers**: `<leader>fb`
-* **Help tags**: `<leader>fh`
-* **Diagnostics (workspace)**: `<leader>fd`
-* **LSP references (current symbol)**: `<leader>fr`
-* **Document symbols**: `<leader>fs`
-
-**Git pickers**:
-
-* Branches: `<leader>gB` · Commits: `<leader>gC` · Status: `<leader>gS`
-
-*Tip*: Press `?` inside Telescope pickers to see mappings.
-
----
-
-### Git — `gitsigns.nvim`
-
-Hunks in sign column with ASCII-friendly marks. Line blame is enabled (500ms delay).
-
-**Navigation**
-
-* Next/Prev hunk: `]h` / `[h`
-
-**Stage/Reset**
-
-* Stage hunk: `<leader>hs`  ·  Reset hunk: `<leader>hr`
-* Stage entire buffer: `<leader>hS` · Undo stage: `<leader>hu`
-
-**Info & Diff**
-
-* Preview hunk: `<leader>hp`
-* Blame current line (full): `<leader>hb`
-* Diff vs index: `<leader>hd`
-* Diff vs last commit: `<leader>hD`
-* Toggle line blame: `<leader>ht` · Toggle word diff: `<leader>hw`
-
----
-
-### Git Porcelain — `vim-fugitive`
-
-* Status: `<leader>gs` → opens `:Git` status.
-* Commit: `<leader>gc`
-* Push: `<leader>gp` · Pull: `<leader>gP`
-
-**Examples**
-
-```vim
-:Git add %          " stage current file
-:Git commit         " open commit buffer
-:Git log --oneline  " quick history
+```
+~/.config/nvim/
+├── init.lua                     # Entry point
+├── init.lua.backup             # Original config backup
+├── lua/
+│   ├── config/                 # Core configuration
+│   │   ├── options.lua         # Vim options and settings
+│   │   ├── keymaps.lua         # Global keymaps
+│   │   └── autocmds.lua        # Diagnostics, autocmds, and commands
+│   ├── lsp/                    # LSP configuration
+│   │   └── init.lua            # LSP setup and keymaps
+│   └── plugins/                # Plugin specifications
+│       ├── core.lua            # Core libraries
+│       ├── colorscheme.lua     # Monokai Pro theme
+│       ├── statusline.lua      # Status line & buffer line
+│       ├── lsp.lua             # LSP tools (Mason, Conform, etc.)
+│       ├── ui.lua              # UI plugins (Telescope, Harpoon, etc.)
+│       ├── git.lua             # Git integration
+│       ├── treesitter.lua      # Syntax highlighting
+│       ├── completion.lua      # Completion stack
+│       ├── python.lua          # Python-specific tools
+│       └── workspace.lua       # Session & workspace management
 ```
 
----
-
-### Modern Diff UI — `diffview.nvim`
-
-* Open / Close / History:
-
-```vim
-:DiffviewOpen
-:DiffviewClose
-:DiffviewFileHistory
-```
-
-*Use this to review large diffs more comfortably than split diffs.*
-
----
-
-### Treesitter — Syntax, Textobjects, Context
-
-**Core** (`nvim-treesitter`)
-
-* Parsers auto-install; highlighting & indentation enabled.
-* Incremental selection: `gnn` (start) · expand `grn` · shrink `grm` · scope `grc`.
-
-**Textobjects** (`nvim-treesitter-textobjects`)
-
-* Select function/class/parameter:
-
-  * `af` / `if` → function outer/inner
-  * `ac` / `ic` → class outer/inner
-  * `ap` / `ip` → parameter outer/inner
-* Motions:
-
-  * Next function/class start: `]m` / `]]`
-  * Prev function/class start: `[m` / `[[`
-
-**Sticky Context** (`nvim-treesitter-context`)
-
-* Shows current function/class at the top as you scroll (max 4 lines).
-
----
-
-### LSP — `mason`, `mason-lspconfig`, `lspconfig`
-
-* **Servers installed**: `pyright` (via Mason + installer).
-* **Capabilities**: integrated with `nvim-cmp` for completion.
-* **Buffer-local LSP maps** (active when a server attaches):
-
-  * `gd` / `gD` / `gr` / `gi` for goto & references
-  * `K` hover · `<leader>rn` rename · `<leader>ca` code actions
-  * `[d` / `]d` for diagnostics navigation
-
-> **Ruff LSP**: configured with formatting **disabled** (formatting handled by Conform + Ruff tools). If you have an `on_attach_common` function defined elsewhere, it will also run.
-
----
-
-### Completion — `nvim-cmp` + Snippets — `LuaSnip`
-
-* Trigger completion: `<C-Space>`
-* Confirm: `<CR>`
-* Navigate & snippet jump: `<Tab>` / `<S-Tab>`
-* Sources: LSP, signature help, snippets, path, buffer.
-
-**Example**
-
-```python
-# Type and accept completion with <CR>
-from dataclasses import dataclass
-@dataclass
-class Trade:
-    price: float
-    qty: int
-```
-
----
-
-### Auto Pairs — `nvim-autopairs`
-
-* Auto-inserts matching `) ] } ' "` and integrates with completion confirmation.
-
----
-
-### GitHub Copilot — `github/copilot.vim`
-
-* **Accept suggestion**: `<C-l>` (custom mapping; Tab is disabled)
-* **First time**: run `:Copilot setup`
-
-*Tip*: Copilot “ghost text” is shown by Copilot itself (CMP ghost text is disabled).
-
----
-
-### Harpoon — Quick File Marks
-
-* Add file: `<leader>a`
-* Menu: `<leader>h`
-* Jump to slot 1..4: `<leader>1`, `<leader>2`, `<leader>3`, `<leader>4`
-
-**Example Workflow**
-
-1. Open files you’re toggling between.
-2. Add each with `<leader>a`.
-3. Use `<leader>1..4` to bounce between them.
-
----
-
-### Python Venv Selector — `venv-selector.nvim`
-
-* **Select venv**: `<leader>vs` or `:VenvSelect`
-* **Cached venv**: `:VenvSelectCached` *(no explicit mapping in this config)*
-* Searches common locations (including project `.venv`) and can integrate with Telescope when present.
-
-**Bootstrap helper** — `:UvInit`
-
-```vim
-:UvInit
-" Creates .venv (if missing) and installs ruff, ruff-lsp, pyright via uv.
-```
-
----
-
-### Tmux Navigator — `vim-tmux-navigator`
-
-* Move between splits/panes: `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>`
-* Previous pane: `<C-\>`
-
-> Works in **normal** and **terminal** modes, so navigation is seamless across Neovim splits and tmux panes.
-
----
-
-### Colors & UI
-
-* Colorscheme: **Monokai Pro** (variant **spectrum**), terminal colors enabled.
-* Signs and diagnostic styles use ASCII-friendly glyphs, suitable without Nerd Fonts.
-
----
-
-## Tips & Troubleshooting
-
-* **Live Grep requires `ripgrep`** (`rg` in PATH).
-* **`venv-selector` search uses `fd`** in the custom command shown in `init.lua`—install `fd` for best results.
-* If diagnostics feel noisy, toggle inline virtual text with `<leader>tv` and use `gl` on demand.
-* If a file isn’t saving automatically, ensure it’s not read-only and has a filename. Autosave also triggers on buffer leave/focus loss.
-
----
-
-## Appendix — Command Reference (Flat List)
-
-**Leader**: Space
-
-**General**
-
-* Toggle tree: `<leader>e`
-* Toggle autosave: `<leader>ta`
-* Toggle inline diagnostics: `<leader>tv`
-* Format buffer: `<leader>F`
-
-**Telescope**
-
-* Files `<leader>ff` · Grep `<leader>fg` · Buffers `<leader>fb` · Help `<leader>fh`
-* Diagnostics `<leader>fd` · References `<leader>fr` · Symbols `<leader>fs`
-* Git: Branches `<leader>gB` · Commits `<leader>gC` · Status `<leader>gS`
-
-**LSP**
-
-* `gd`, `gD`, `gr`, `gi`, `K`, `<leader>rn`, `<leader>ca`, `[d`, `]d`, `gl`
-
-**Git (Gitsigns)**
-
-* `]h`, `[h`, `<leader>hs`, `<leader>hr`, `<leader>hS`, `<leader>hu`, `<leader>hp`, `<leader>hb`, `<leader>hd`, `<leader>hD`, `<leader>ht`, `<leader>hw`
-
-**Fugitive**
-
-* `<leader>gs`, `<leader>gc`, `<leader>gp`, `<leader>gP`
-
-**Diffview**
-
-* `:DiffviewOpen`, `:DiffviewClose`, `:DiffviewFileHistory`
-
-**Harpoon**
-
-* `<leader>a`, `<leader>h`, `<leader>1..4`
-
-**Python**
-
-* Venv select: `<leader>vs` / `:VenvSelect`
-* Cached venv: `:VenvSelectCached`
-* Bootstrap: `:UvInit`
-
-**Copilot**
-
-* Accept suggestion: `<C-l>`
-
-**Tmux Navigation**
-
-* `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>`, `<C-\>`
-
----
-
-
--
+## ✨ Features
+
+### 📊 Comprehensive Status Line & Tab Line
+- **File Information**: Name, type, size, encoding, line endings
+- **Python Environment**: Current virtual environment with 🐍 icon
+- **Git Integration**: Branch, diff stats, blame information
+- **LSP Status**: Active language servers and diagnostics count
+- **System Info**: Time, location, progress, macro recording
+- **Enhanced Buffer Line**: With diagnostics, close buttons, and visual indicators
+
+### 🐍 Python Development
+- **Environment Management**: Automatic virtual environment detection and switching
+- **LSP Support**: Pyright for type checking, Ruff for linting and formatting
+- **Test Runner**: Integrated pytest support with neotest
+- **REPL Integration**: Interactive Python REPL with Iron.nvim
+- **Docstring Generation**: Automatic Google-style docstrings with neogen
+- **PEP8 Indentation**: Proper Python indentation support
+
+### 🔧 Development Tools
+- **File Explorer**: nvim-tree with git integration
+- **Fuzzy Finding**: Telescope for files, grep, symbols, diagnostics
+- **Quick Navigation**: Harpoon for project file bookmarks
+- **Git Integration**: Gitsigns, Fugitive, and Diffview
+- **Session Management**: Automatic session persistence
+- **Project Management**: Automatic project detection
+- **Workspace Diagnostics**: Trouble.nvim for enhanced error display
+
+### ⚡ Enhanced UI
+- **Modern Theme**: Monokai Pro with terminal colors
+- **Smart Completion**: nvim-cmp with LSP, snippets, and paths
+- **Syntax Highlighting**: Treesitter with textobjects
+- **Auto-pairs**: Intelligent bracket/quote pairing
+- **Tmux Integration**: Seamless pane navigation
+
+## 🚀 Key Bindings
+
+### Leader Key: `<Space>`
+
+#### File Operations
+- `<leader>ff` - Find files
+- `<leader>fg` - Live grep
+- `<leader>fb` - Browse buffers
+- `<leader>fh` - Help tags
+- `<leader>fd` - Diagnostics
+- `<leader>fc` - Commands
+- `<leader>fk` - Keymaps
+- `<leader>fm` - Marks
+- `<leader>fj` - Jump list
+- `<leader>fo` - Old files
+- `<leader>e` - Toggle file tree
+
+#### Git Operations
+- `<leader>gs` - Git status
+- `<leader>gc` - Git commit
+- `<leader>gp` - Git push
+- `<leader>gP` - Git pull
+- `<leader>gB` - Git branches
+- `<leader>gC` - Git commits
+- `<leader>gS` - Git status (Telescope)
+- `<leader>gf` - Git files
+- `<leader>gb` - Toggle git blame (virtual text)
+- `<leader>hb` - Show blame line (popup)
+- `<leader>ht` - Toggle gitsigns line blame
+- `<leader>hs` - Stage hunk
+- `<leader>hr` - Reset hunk
+- `<leader>hp` - Preview hunk
+- `]h` / `[h` - Next/Previous hunk
+
+#### Python Development
+- `<leader>vs` - Select Python virtual environment
+- `<leader>vc` - Activate cached virtual environment
+- `<leader>tt` - Run nearest test
+- `<leader>tf` - Run file tests
+- `<leader>td` - Debug nearest test
+- `<leader>ts` - Toggle test summary
+- `<leader>to` - Show test output
+- `<leader>tO` - Toggle test output panel
+- `<leader>tr` - Run last test
+- `<leader>ta` - Run all tests
+- `<leader>tS` - Stop tests
+- `<leader>nf` - Generate function docstring
+- `<leader>nc` - Generate class docstring
+- `<leader>rs` - Start Python REPL
+- `<leader>rr` - Restart REPL
+
+#### Buffer Management
+- `<Tab>` / `<S-Tab>` - Next/Previous buffer (easy cycling)
+- `]b` / `[b` - Next/Previous buffer (bracket style)
+- `<S-h>` / `<S-l>` - Next/Previous buffer (vim-style)
+- `<leader>bn` / `<leader>bp` - Next/Previous buffer (explicit)
+- `<leader>fb` - Browse all buffers (Telescope)
+- `<leader>bd` - Delete buffer (smart - goes to next)
+- `<leader>bx` - Delete buffer (default)
+- `<leader>bD` - Force delete buffer
+- `<Ctrl-w>` - Close buffer (smart deletion)
+- `<leader>bp` - Toggle buffer pin
+- `<leader>bo` - Delete other buffers
+- `<Alt-1>` to `<Alt-9>` - Jump to buffer by number
+
+#### LSP & Diagnostics
+- `gd` - Go to definition (Telescope)
+- `gD` - Go to declaration
+- `gr` - Find references (Telescope)
+- `gi` - Go to implementation (Telescope)
+- `gt` - Go to type definition (Telescope)
+- `<leader>ds` - Document symbols (Telescope)
+- `<leader>ws` - Workspace symbols (Telescope)
+- `<leader>ic` - Incoming calls (Telescope)
+- `<leader>oc` - Outgoing calls (Telescope)
+- `K` - Hover documentation
+- `<leader>rn` - Rename symbol
+- `<leader>ca` - Code actions
+- `[d]` / `]d` - Previous/Next diagnostic
+- `gl` - Show line diagnostics
+- `<leader>F` - Format buffer
+
+#### Toggles
+- `<leader>tv` - Toggle virtual text diagnostics
+- `<leader>ta` - Toggle autosave
+
+#### Workspace
+- `<leader>xx` - Toggle diagnostics (Trouble)
+- `<leader>xX` - Buffer diagnostics (Trouble)
+- `<leader>sr` - Search and replace in files
+- `<leader>qs` - Restore session
+- `<leader>ql` - Restore last session
+
+#### Harpoon Quick Navigation
+- `<leader>a` - Add file to harpoon
+- `<leader>h` - Toggle harpoon menu
+- `<leader>1-4` - Navigate to harpoon files 1-4
+
+## 🎨 Status Line Components
+
+### Left Section
+- **Mode**: Current Vim mode (single character)
+- **Macro Recording**: Shows when recording macros
+- **Git Branch**: Current branch with git icon
+- **Git Diff**: Added/modified/removed line counts
+
+### Center Section
+- **Filename**: Relative path with modification indicators
+- **File Type**: With colored icons
+- **File Size**: Human-readable file size
+
+### Right Section
+- **Python Environment**: 🐍 Active virtual environment
+- **LSP Status**: Active language servers
+- **Diagnostics**: Error/warning/hint/info counts
+- **Encoding**: File encoding (UTF-8, etc.)
+- **Line Endings**: LF, CRLF, or CR
+- **Location**: Line and column numbers
+- **Progress**: Percentage through file
+- **Time**: Current time (HH:MM)
+
+## 🛠️ Installation & Setup
+
+1. **Backup your existing config**:
+   ```bash
+   mv ~/.config/nvim ~/.config/nvim.backup
+   ```
+
+2. **This config is already installed** - it was refactored from your existing setup
+
+3. **Install dependencies** (if needed):
+   ```bash
+   # For Python development
+   pip install ruff pyright
+
+   # For fd (used by telescope and venv-selector)
+   # Ubuntu/Debian: sudo apt install fd-find
+   # Arch: sudo pacman -S fd
+   # macOS: brew install fd
+   ```
+
+4. **First run**: Open Neovim and let lazy.nvim install all plugins
+
+5. **Python environment setup**: Use `:UvInit` to bootstrap a project with uv
+
+## 🎯 Python Development Workflow
+
+1. **Open your Python project**: `nvim your_project/`
+2. **Select environment**: `<leader>vs` to choose your virtual environment
+3. **Navigate files**: `<leader>ff` to find files, `<leader>fg` to grep
+4. **Add to harpoon**: `<leader>a` to bookmark important files
+5. **Run tests**: `<leader>tt` for nearest test, `<leader>tf` for file tests
+6. **Start REPL**: `<leader>rs` for interactive Python development
+7. **Generate docs**: `<leader>nf` for function docstrings
+8. **Git workflow**: `<leader>gs` for status, stage hunks with `<leader>hs`
+
+The status line will show all relevant information: your active Python environment, git branch, LSP status, and diagnostics - everything you need for productive Python development!
+
+## 🔧 Customization
+
+All configuration is modular and easy to customize:
+- Modify `lua/config/options.lua` for Vim settings
+- Update `lua/config/keymaps.lua` for key bindings
+- Edit plugin files in `lua/plugins/` to add/remove features
+- Customize the status line in `lua/plugins/statusline.lua`
+
+Enjoy your enhanced Neovim experience! 🎉
