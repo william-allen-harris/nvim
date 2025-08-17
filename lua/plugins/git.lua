@@ -32,17 +32,27 @@ return {
         end
         map("n", "]h", gs.next_hunk, "Next hunk")
         map("n", "[h", gs.prev_hunk, "Prev hunk")
-        map({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>", "Stage hunk")
-        map({ "n", "v" }, "<leader>hr", ":Gitsigns reset_hunk<CR>", "Reset hunk")
-        map("n", "<leader>hS", gs.stage_buffer, "Stage buffer")
-        map("n", "<leader>hu", gs.undo_stage_hunk, "Undo stage hunk")
-        map("n", "<leader>hp", gs.preview_hunk, "Preview hunk")
-        map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line (popup)")
+        -- Remapped from <leader>hs to avoid Harpoon conflict
+        map({ "n", "v" }, "<leader>gha", ":Gitsigns stage_hunk<CR>", "Stage hunk")
+        -- Remapped from <leader>hr
+        map({ "n", "v" }, "<leader>ghr", ":Gitsigns reset_hunk<CR>", "Reset hunk")
+        -- Remapped from <leader>hS
+        map("n", "<leader>ghS", gs.stage_buffer, "Stage buffer")
+        -- Remapped from <leader>hu
+        map("n", "<leader>ghu", gs.undo_stage_hunk, "Undo stage hunk")
+        -- Remapped from <leader>hp
+        map("n", "<leader>ghp", gs.preview_hunk, "Preview hunk")
+        -- Remapped from <leader>hb
+        map("n", "<leader>ghb", function() gs.blame_line({ full = true }) end, "Blame line (popup)")
         map("n", "<leader>gb", gs.toggle_current_line_blame, "Toggle git blame virtual text")
-        map("n", "<leader>hd", gs.diffthis, "Diff vs index")
-        map("n", "<leader>hD", function() gs.diffthis("~") end, "Diff vs last commit")
-        map("n", "<leader>ht", gs.toggle_current_line_blame, "Toggle gitsigns line blame")
-        map("n", "<leader>hw", gs.toggle_word_diff, "Toggle word diff")
+        -- Remapped from <leader>hd
+        map("n", "<leader>ghd", gs.diffthis, "Diff vs index")
+        -- Remapped from <leader>hD
+        map("n", "<leader>ghD", function() gs.diffthis("~") end, "Diff vs last commit")
+        -- Remapped from <leader>ht
+        map("n", "<leader>ght", gs.toggle_current_line_blame, "Toggle gitsigns line blame")
+        -- Remapped from <leader>hw
+        map("n", "<leader>ghw", gs.toggle_word_diff, "Toggle word diff")
       end,
     },
   },

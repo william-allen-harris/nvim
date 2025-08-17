@@ -89,11 +89,11 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>gS` - Git status (Telescope)
 - `<leader>gf` - Git files
 - `<leader>gb` - Toggle git blame virtual text (gitsigns)
-- `<leader>hb` - Show blame line (popup)
-- `<leader>ht` - Toggle gitsigns line blame
-- `<leader>hs` - Stage hunk
-- `<leader>hr` - Reset hunk
-- `<leader>hp` - Preview hunk
+- `<leader>ghb` - Show blame line (popup)
+- `<leader>ght` - Toggle gitsigns line blame
+- `<leader>gha` - Stage hunk
+- `<leader>ghr` - Reset hunk
+- `<leader>ghp` - Preview hunk
 - `]h` / `[h` - Next/Previous hunk
 
 #### Python Development
@@ -147,7 +147,7 @@ A modern, modular Neovim configuration optimized for Python development with a c
 - `<leader>tv` - Toggle virtual text diagnostics (starts disabled)
 - `<leader>ta` - Toggle autosave
 - `<leader>gb` - Toggle git blame virtual text (gitsigns)
-- `<leader>ht` - Toggle gitsigns line blame
+- `<leader>ght` - Toggle gitsigns line blame
 
 #### Workspace
 - `<leader>xx` - Toggle diagnostics (Trouble)
@@ -379,7 +379,7 @@ This comprehensive statusline gives you everything you need to understand your c
 5. **Run tests**: `<leader>tt` for nearest test, `<leader>tf` for file tests
 6. **Start REPL**: `<leader>rs` for interactive Python development
 7. **Generate docs**: `<leader>nf` for function docstrings
-8. **Git workflow**: `<leader>gs` for status, stage hunks with `<leader>hs`
+8. **Git workflow**: `<leader>gs` for status, stage hunks with `<leader>gha`
 
 The status line will show all relevant information: your active Python environment, git branch, LSP status, and diagnostics - everything you need for productive Python development!
 
