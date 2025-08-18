@@ -79,7 +79,7 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
 
 -- Toggle autosave
 local autosave_enabled = true
-vim.keymap.set("n", "<leader>ta", function()
+vim.keymap.set("n", "<leader>as", function()
   autosave_enabled = not autosave_enabled
   if autosave_enabled then
     vim.api.nvim_del_augroup_by_name("AutoSaveOnInsertLeave")

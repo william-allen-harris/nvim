@@ -11,7 +11,7 @@ return {
     config = function()
       -- Configure Monokai Pro with spectrum filter and terminal colors
       require("monokai-pro").setup({ 
-        filter = "spectrum", 
+        filter = "machine", 
         terminal_colors = true,
         devicons = true, -- Enable devicons integration
         styles = {
