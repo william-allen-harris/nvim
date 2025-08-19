@@ -230,17 +230,8 @@ return {
       end
 
       local function lsp_status()
-        -- Use the most compatible way to get LSP clients
-        local clients = {}
-        
-        -- Try the newer API first, then fall back to older versions
-        if vim.lsp.get_clients then
-          clients = vim.lsp.get_clients({ bufnr = 0 })
-        elseif vim.lsp.get_active_clients then
-          clients = vim.lsp.get_active_clients({ bufnr = 0 })
-        elseif vim.lsp.buf_get_clients then
-          clients = vim.lsp.buf_get_clients(0)
-        end
+        -- Use the current API to get LSP clients
+        local clients = vim.lsp.get_clients({ bufnr = 0 })
         
         if #clients == 0 then
           return "󰌘 No LSP"
@@ -380,6 +371,59 @@ return {
         return ""
       end
 
+      local function git_unstaged_stats()
+        local handle = io.popen("git status --porcelain 2>/dev/null")
+        if not handle then return "" end
+        local result = handle:read("*a")
+        handle:close()
+        
+        if result == "" then return "" end
+        
+        local unstaged = 0
+        local staged = 0
+        for line in result:gmatch("[^\r\n]+") do
+          local status = line:sub(1, 2)
+          if status:sub(2, 2) ~= " " then
+            unstaged = unstaged + 1
+          end
+          if status:sub(1, 1) ~= " " and status:sub(1, 1) ~= "?" then
+            staged = staged + 1
+          end
+        end
+        
+        local parts = {}
+        if staged > 0 then
+          table.insert(parts, "󰐖 " .. staged)
+        end
+        if unstaged > 0 then
+          table.insert(parts, "󰄱 " .. unstaged)
+        end
+        
+        return table.concat(parts, " ")
+      end
+
+      local function git_commit_diff()
+        local handle = io.popen("git rev-list --left-right --count HEAD...@{upstream} 2>/dev/null")
+        if not handle then return "" end
+        local result = handle:read("*a")
+        handle:close()
+        
+        if result == "" then return "" end
+        
+        local ahead, behind = result:match("(%d+)%s+(%d+)")
+        if not ahead or not behind then return "" end
+        
+        local parts = {}
+        if tonumber(ahead) > 0 then
+          table.insert(parts, "󰜷 " .. ahead)
+        end
+        if tonumber(behind) > 0 then
+          table.insert(parts, "󰜮 " .. behind)
+        end
+        
+        return table.concat(parts, " ")
+      end
+
       lualine.setup({
         options = {
           theme = "monokai-pro",
@@ -447,6 +491,20 @@ return {
                     removed = gitsigns.removed
                   }
                 end
+              end,
+            },
+            {
+              git_unstaged_stats,
+              color = { fg = "#fc9867" },
+              cond = function()
+                return vim.fn.isdirectory(".git") == 1
+              end,
+            },
+            {
+              git_commit_diff,
+              color = { fg = "#78dce8" },
+              cond = function()
+                return vim.fn.isdirectory(".git") == 1
               end,
             },
             {

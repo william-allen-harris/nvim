@@ -31,11 +31,48 @@ local function setup_telescope_keymaps()
     map("n", "<leader>fj", telescope.jumplist, opts)
     map("n", "<leader>fo", telescope.oldfiles, opts)
     
-    -- Git Telescope
-    map("n", "<leader>gB", telescope.git_branches, { desc = "Git branches" })
-    map("n", "<leader>gC", telescope.git_commits,  { desc = "Git commits" })
-    map("n", "<leader>gS", telescope.git_status,   { desc = "Git status (Telescope)" })
+    -- Git Telescope - Complete workflow
     map("n", "<leader>gf", telescope.git_files,    { desc = "Git files" })
+    map("n", "<leader>gs", telescope.git_status,   { desc = "Git status" })
+    map("n", "<leader>gb", telescope.git_branches, { desc = "Git branches" })
+    map("n", "<leader>gc", telescope.git_commits,  { desc = "Git commits" })
+    map("n", "<leader>gh", telescope.git_stash,    { desc = "Git stash" })
+    
+    -- Git diff
+    map("n", "<leader>gd", function()
+      vim.cmd("DiffviewOpen")
+    end, { desc = "Git diff view" })
+    
+    -- Git log
+    map("n", "<leader>gl", telescope.git_commits,  { desc = "Git log" })
+    
+    -- Git operations
+    map("n", "<leader>ga", "<cmd>!git add .<cr>", { desc = "Git add all" })
+    map("n", "<leader>gm", function()
+      vim.ui.input({ prompt = "Commit message: " }, function(msg)
+        if msg and msg ~= "" then
+          vim.cmd('!git commit -m "' .. msg .. '"')
+          vim.cmd("checktime")
+        end
+      end)
+    end, { desc = "Git commit" })
+    map("n", "<leader>gp", "<cmd>!git push<cr>", { desc = "Git push" })
+    map("n", "<leader>gv", function()
+      local branch = vim.fn.system("git branch --show-current"):gsub("\n", "")
+      if branch ~= "" then
+        vim.cmd("!git push --set-upstream origin " .. branch)
+      else
+        vim.notify("Not on a git branch", vim.log.levels.WARN)
+      end
+    end, { desc = "Git push upstream" })
+    map("n", "<leader>gu", "<cmd>!git pull<cr>", { desc = "Git pull" })
+    map("n", "<leader>gF", "<cmd>!git fetch<cr>", { desc = "Git fetch" })
+    map("n", "<leader>gM", function()
+      vim.cmd("!git fetch origin")
+      local main_exists = vim.fn.system("git show-ref --verify --quiet refs/heads/main")
+      local branch = main_exists:find("^0") and "main" or "master"
+      vim.cmd("!git checkout " .. branch .. " && git pull origin " .. branch .. " && git checkout - && git merge " .. branch)
+    end, { desc = "Git merge main/master (update first)" })
   end
 end
 
