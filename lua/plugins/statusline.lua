@@ -366,7 +366,7 @@ return {
 
       local function modified_indicator()
         if vim.bo.modified then
-          return "󰳖 UNSAVED"
+          return "UNSAVED"
         end
         return ""
       end
@@ -530,7 +530,6 @@ return {
               path = 1, -- Relative path
               shorting_target = 30,
               symbols = {
-                modified = "󰳖 ",
                 readonly = "󰌾 ",
                 unnamed = "󰡯 [No Name]",
                 newfile = "󰎔 [New]",
@@ -624,7 +623,6 @@ return {
               "filename",
               path = 1,
               symbols = {
-                modified = "󰳖 ",
                 readonly = "󰌾 ",
                 unnamed = "󰡯 [No Name]",
               },
