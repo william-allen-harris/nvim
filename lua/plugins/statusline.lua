@@ -10,6 +10,25 @@ return {
     dependencies = "nvim-tree/nvim-web-devicons",
     event = "VeryLazy",
     config = function()
+      -- Define everforest-dark color palette for consistency
+      local everforest_colors = {
+        bg0 = "#2d353b",      -- Background
+        bg1 = "#343f44",      -- Lighter background
+        bg2 = "#3d484d",      -- Even lighter background
+        bg3 = "#475258",      -- Lightest background
+        fg = "#d3c6aa",       -- Foreground text
+        red = "#e67e80",      -- Error/warning
+        orange = "#e69875",   -- Modified
+        yellow = "#dbbc7f",   -- Info
+        green = "#a7c080",    -- Success/added
+        aqua = "#83c092",     -- Special
+        blue = "#7fbbb3",     -- Info/hint
+        purple = "#d699b6",   -- Purple accent
+        grey0 = "#7a8478",    -- Comments
+        grey1 = "#859289",    -- Muted text
+        grey2 = "#9da9a0",    -- Less muted
+      }
+
       require("bufferline").setup({
         options = {
           mode = "buffers",
@@ -32,12 +51,7 @@ return {
           max_prefix_length = 15,
           truncate_names = true,
           tab_size = 20,
-          diagnostics = "nvim_lsp",
-          diagnostics_update_in_insert = false,
-          diagnostics_indicator = function(count, level, diagnostics_dict, context)
-            local icon = level:match("error") and "󰅚 " or level:match("warn") and "󰀪 " or "󰌶 "
-            return " " .. icon .. count
-          end,
+          diagnostics = false,
           custom_filter = function(buf_number, buf_numbers)
             -- Filter out certain file types
             if vim.bo[buf_number].filetype ~= "help" and vim.bo[buf_number].filetype ~= "qf" then
@@ -75,126 +89,126 @@ return {
           sort_by = "insert_after_current",
         },
         highlights = {
-          -- Ensure Monokai Pro colors are applied correctly
+          -- Everforest-dark colors for consistency
           fill = {
-            fg = "#727072",
-            bg = "#2d2a2e",
+            fg = everforest_colors.grey1,
+            bg = everforest_colors.bg0,
           },
           background = {
-            fg = "#727072",
-            bg = "#2d2a2e",
+            fg = everforest_colors.grey1,
+            bg = everforest_colors.bg0,
           },
           buffer_visible = {
-            fg = "#fcfcfa",
-            bg = "#403e41",
+            fg = everforest_colors.fg,
+            bg = everforest_colors.bg1,
           },
           buffer_selected = {
-            fg = "#fcfcfa",
-            bg = "#403e41",
+            fg = everforest_colors.fg,
+            bg = everforest_colors.bg2,
             bold = true,
           },
-          -- Fix number highlighting with explicit colors
+          -- Number highlighting with everforest colors
           numbers = {
-            fg = "#78dce8", -- Cyan for inactive
-            bg = "#2d2a2e",
+            fg = everforest_colors.blue,
+            bg = everforest_colors.bg0,
           },
           numbers_visible = {
-            fg = "#a9dc76", -- Green for visible
-            bg = "#403e41",
+            fg = everforest_colors.green,
+            bg = everforest_colors.bg1,
           },
           numbers_selected = {
-            fg = "#ff6188", -- Pink for active
-            bg = "#403e41",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg2,
             bold = true,
           },
           close_button = {
-            fg = "#727072",
-            bg = "#2d2a2e",
+            fg = everforest_colors.grey1,
+            bg = everforest_colors.bg0,
           },
           close_button_visible = {
-            fg = "#fcfcfa",
-            bg = "#403e41",
+            fg = everforest_colors.fg,
+            bg = everforest_colors.bg1,
           },
           close_button_selected = {
-            fg = "#ff6188",
-            bg = "#403e41",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg2,
           },
           modified = {
-            fg = "#fc9867",
-            bg = "#2d2a2e",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg0,
           },
           modified_visible = {
-            fg = "#fc9867",
-            bg = "#403e41",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg1,
           },
           modified_selected = {
-            fg = "#fc9867",
-            bg = "#403e41",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg2,
           },
           separator = {
-            fg = "#2d2a2e",
-            bg = "#2d2a2e",
+            fg = everforest_colors.bg0,
+            bg = everforest_colors.bg0,
           },
           separator_visible = {
-            fg = "#403e41",
-            bg = "#2d2a2e",
+            fg = everforest_colors.bg1,
+            bg = everforest_colors.bg0,
           },
           separator_selected = {
-            fg = "#403e41",
-            bg = "#2d2a2e",
+            fg = everforest_colors.bg2,
+            bg = everforest_colors.bg0,
           },
           indicator_selected = {
-            fg = "#ff6188",
-            bg = "#403e41",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg2,
           },
-          -- Diagnostic colors
+          -- Diagnostic colors with everforest palette
           error = {
-            fg = "#ff6188",
-            bg = "#2d2a2e",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg0,
           },
           error_visible = {
-            fg = "#ff6188",
-            bg = "#403e41",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg1,
           },
           error_selected = {
-            fg = "#ff6188",
-            bg = "#403e41",
+            fg = everforest_colors.red,
+            bg = everforest_colors.bg2,
           },
           warning = {
-            fg = "#fc9867",
-            bg = "#2d2a2e",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg0,
           },
           warning_visible = {
-            fg = "#fc9867",
-            bg = "#403e41",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg1,
           },
           warning_selected = {
-            fg = "#fc9867",
-            bg = "#403e41",
+            fg = everforest_colors.orange,
+            bg = everforest_colors.bg2,
           },
           info = {
-            fg = "#78dce8",
-            bg = "#2d2a2e",
+            fg = everforest_colors.blue,
+            bg = everforest_colors.bg0,
           },
           info_visible = {
-            fg = "#78dce8",
-            bg = "#403e41",
+            fg = everforest_colors.blue,
+            bg = everforest_colors.bg1,
           },
           info_selected = {
-            fg = "#78dce8",
-            bg = "#403e41",
+            fg = everforest_colors.blue,
+            bg = everforest_colors.bg2,
           },
           hint = {
-            fg = "#ab9df2",
-            bg = "#2d2a2e",
+            fg = everforest_colors.purple,
+            bg = everforest_colors.bg0,
           },
           hint_visible = {
-            fg = "#ab9df2",
-            bg = "#403e41",
+            fg = everforest_colors.purple,
+            bg = everforest_colors.bg1,
           },
           hint_selected = {
-            fg = "#ab9df2",
-            bg = "#403e41",
+            fg = everforest_colors.purple,
+            bg = everforest_colors.bg2,
           },
         },
       })
@@ -234,7 +248,7 @@ return {
         local clients = vim.lsp.get_clients({ bufnr = 0 })
         
         if #clients == 0 then
-          return "󰌘 No LSP"
+          return ""
         end
         
         -- Use a set to deduplicate client names
@@ -424,9 +438,28 @@ return {
         return table.concat(parts, " ")
       end
 
+      -- Define everforest-dark color palette (reuse across bufferline and lualine)
+      local everforest_colors = {
+        bg0 = "#2d353b",      -- Background
+        bg1 = "#343f44",      -- Lighter background
+        bg2 = "#3d484d",      -- Even lighter background
+        bg3 = "#475258",      -- Lightest background
+        fg = "#d3c6aa",       -- Foreground text
+        red = "#e67e80",      -- Error/warning
+        orange = "#e69875",   -- Modified
+        yellow = "#dbbc7f",   -- Info
+        green = "#a7c080",    -- Success/added
+        aqua = "#83c092",     -- Special
+        blue = "#7fbbb3",     -- Info/hint
+        purple = "#d699b6",   -- Purple accent
+        grey0 = "#7a8478",    -- Comments
+        grey1 = "#859289",    -- Muted text
+        grey2 = "#9da9a0",    -- Less muted
+      }
+
       lualine.setup({
         options = {
-          theme = "monokai-pro",
+          theme = "everforest",
           component_separators = { left = "│", right = "│" },
           section_separators = { left = "", right = "" },
           disabled_filetypes = {
@@ -464,7 +497,7 @@ return {
             },
             {
               macro_recording,
-              color = { fg = "#ff6188", gui = "bold" },
+              color = { fg = everforest_colors.red, gui = "bold" },
               cond = function() return vim.fn.reg_recording() ~= "" end,
             },
           },
@@ -472,15 +505,15 @@ return {
             {
               "branch",
               icon = "󰊢", -- Git branch icon
-              color = { fg = "#a9dc76", gui = "bold" },
+              color = { fg = everforest_colors.green, gui = "bold" },
             },
             {
               "diff",
               symbols = { added = "󰐖 ", modified = "󰏬 ", removed = "󰍵 " },
               diff_color = {
-                added = { fg = "#a9dc76" },
-                modified = { fg = "#fc9867" },
-                removed = { fg = "#ff6188" },
+                added = { fg = everforest_colors.green },
+                modified = { fg = everforest_colors.orange },
+                removed = { fg = everforest_colors.red },
               },
               source = function()
                 local gitsigns = vim.b.gitsigns_status_dict
@@ -495,21 +528,21 @@ return {
             },
             {
               git_unstaged_stats,
-              color = { fg = "#fc9867" },
+              color = { fg = everforest_colors.orange },
               cond = function()
                 return vim.fn.isdirectory(".git") == 1
               end,
             },
             {
               git_commit_diff,
-              color = { fg = "#78dce8" },
+              color = { fg = everforest_colors.blue },
               cond = function()
                 return vim.fn.isdirectory(".git") == 1
               end,
             },
             {
               search_count,
-              color = { fg = "#78dce8" },
+              color = { fg = everforest_colors.aqua },
               cond = function()
                 -- Only when actively typing a search
                 local cmd = vim.fn.getcmdtype()
@@ -534,33 +567,33 @@ return {
                 unnamed = "󰡯 [No Name]",
                 newfile = "󰎔 [New]",
               },
-              color = { fg = "#fcfcfa", gui = "bold" },
+              color = { fg = everforest_colors.fg, gui = "bold" },
             },
             {
               modified_indicator,
-              color = { fg = "#fc9867", gui = "bold" },
+              color = { fg = everforest_colors.orange, gui = "bold" },
             },
             {
               "filetype",
               colored = true,
               icon_only = false,
               icon = { align = "left" },
-              color = { fg = "#ab9df2" },
+              color = { fg = everforest_colors.purple },
             },
             {
               smart_file_size,
-              color = { fg = "#78dce8" },
+              color = { fg = everforest_colors.blue },
             },
           },
           lualine_x = {
             {
               python_venv,
-              color = { fg = "#a9dc76", gui = "bold" },
+              color = { fg = everforest_colors.green, gui = "bold" },
               cond = function() return vim.bo.filetype == "python" end,
             },
             {
               lsp_status,
-              color = { fg = "#ab9df2" },
+              color = { fg = everforest_colors.purple },
             },
             {
               smart_diagnostics,
@@ -568,16 +601,16 @@ return {
                 local diagnostics = vim.diagnostic.get(0)
                 for _, diagnostic in ipairs(diagnostics) do
                   if diagnostic.severity == vim.diagnostic.severity.ERROR then
-                    return { fg = "#ff6188", gui = "bold" }
+                    return { fg = everforest_colors.red, gui = "bold" }
                   end
                 end
-                return { fg = "#a9dc76" }
+                return { fg = everforest_colors.green }
               end,
             },
             {
               "encoding",
               fmt = string.upper,
-              color = { fg = "#727072" },
+              color = { fg = everforest_colors.grey1 },
               cond = function() return vim.bo.fileencoding ~= "utf-8" end,
             },
             {
@@ -587,24 +620,24 @@ return {
                 dos = "󰌾 CRLF", 
                 mac = "󰌼 CR",
               },
-              color = { fg = "#727072" },
+              color = { fg = everforest_colors.grey1 },
               cond = function() return vim.bo.fileformat ~= "unix" end,
             },
           },
           lualine_y = {
             {
               buffer_info,
-              color = { fg = "#fc9867" },
+              color = { fg = everforest_colors.orange },
             },
             {
               "progress",
               fmt = function(str) return "󰉸 " .. str end,
-              color = { fg = "#78dce8" },
+              color = { fg = everforest_colors.blue },
             },
             {
               "location",
               fmt = function(str) return "󰰤 " .. str end,
-              color = { fg = "#fcfcfa", gui = "bold" },
+              color = { fg = everforest_colors.fg, gui = "bold" },
             },
           },
           lualine_z = {
@@ -626,13 +659,13 @@ return {
                 readonly = "󰌾 ",
                 unnamed = "󰡯 [No Name]",
               },
-              color = { fg = "#727072" },
+              color = { fg = everforest_colors.grey1 },
             }
           },
           lualine_x = { 
             {
               "location",
-              color = { fg = "#727072" },
+              color = { fg = everforest_colors.grey1 },
             }
           },
           lualine_y = {},

@@ -4,36 +4,50 @@
 
 return {
   {
-    "loctvl842/monokai-pro.nvim",
-    dependencies = { "MunifTanjim/nui.nvim" },
+    "sainnhe/everforest",
     priority = 1000, -- Highest priority to load first
     lazy = false,    -- Load immediately, not lazy
     config = function()
-      -- Configure Monokai Pro with spectrum filter and terminal colors
-      require("monokai-pro").setup({ 
-        filter = "machine", 
-        terminal_colors = true,
-        devicons = true, -- Enable devicons integration
-        styles = {
-          comment = { italic = true },
-          keyword = { italic = false },
-          type = { italic = false },
-          storageclass = { italic = false },
-          structure = { italic = false },
-          parameter = { italic = false },
-          annotation = { italic = false },
-          tag_attribute = { italic = false },
-        },
-      })
+      -- Configure Everforest with dark hard variant
+      vim.g.everforest_background = "hard"
+      vim.g.everforest_better_performance = 1
+      vim.g.everforest_enable_italic = 1
+      vim.g.everforest_disable_italic_comment = 0
+      vim.g.everforest_transparent_background = 1  -- Enable transparency
+      vim.g.everforest_current_word = "grey background"
+      vim.g.everforest_diagnostic_text_highlight = 0  -- Disable text underlining
+      vim.g.everforest_diagnostic_virtual_text = "colored"
+      
+      -- Set dark mode
+      vim.o.background = "dark"
       
       -- Set as default colorscheme
-      vim.cmd.colorscheme("monokai-pro")
+      vim.cmd.colorscheme("everforest")
       
+      -- Custom highlight overrides for transparency and diagnostic styling
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "everforest",
+        callback = function()
+          vim.schedule(function()
+            -- Set 10% transparency (alpha = 0.9)
+            vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
+            vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+            vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE" })
+            
+            -- Remove diagnostic underlining
+            vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { undercurl = false, underline = false })
+            vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { undercurl = false, underline = false })
+            vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { undercurl = false, underline = false })
+            vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { undercurl = false, underline = false })
+          end)
+        end,
+      })
+
       -- Ensure it's set even after other plugins load
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
           vim.schedule(function()
-            vim.cmd.colorscheme("monokai-pro")
+            vim.cmd.colorscheme("everforest")
           end)
         end,
       })

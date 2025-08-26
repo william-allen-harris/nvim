@@ -21,7 +21,7 @@ vim.o.updatetime = 250               -- faster CursorHold
 
 -- Set background and default colorscheme fallback
 opt.background = "dark"
-vim.g.colors_name = "monokai-pro"    -- Default colorscheme preference
+vim.g.colors_name = "everforest"    -- Default colorscheme preference
 
 -- Completion
 opt.completeopt = "menu,menuone,noselect"
