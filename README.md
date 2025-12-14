@@ -354,6 +354,8 @@ A modern, modular Neovim configuration optimized for Python development with com
 | `<leader>uh` | n | Toggle inlay hints |
 | `<leader>ug` | n | Toggle indent guides |
 | `<leader>uD` | n | Toggle dim |
+| `<leader>ut` | n | Toggle colorscheme (Kanagawa/Monokai) |
+| `<leader>uT` | n | Open theme picker (Themery) |
 
 ### Search & Replace
 

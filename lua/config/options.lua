@@ -18,6 +18,10 @@ opt.hidden = true                    -- switch buffers w/o saving
 opt.confirm = true                   -- prompt instead of E37/E162
 opt.autowrite = true                 -- autosave on certain actions
 vim.o.updatetime = 250               -- faster CursorHold
+opt.spell = true                     -- enable spell checking
+opt.spelllang = "en_gb"              -- UK English spelling
+opt.spelloptions = "camel"           -- handle camelCase words
+opt.spellcapcheck = ""               -- don't flag lowercase at sentence start
 
 -- Set background and default colorscheme fallback
 opt.background = "dark"
