@@ -112,7 +112,7 @@ return {
 
       -- Terminal
       { "<C-/>", function() Snacks.terminal() end, desc = "Toggle terminal", mode = { "n", "t" } },
-      -- { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" }, -- Requires: brew install lazygit
+      { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
 
       -- Git
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git browse (open in browser)" },
