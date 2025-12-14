@@ -55,7 +55,7 @@ return {
             ["]o"] = "@loop.outer",
             ["]s"] = "@statement.outer",
             ["]z"] = "@fold",
-            ["]c"] = "@comment.outer",
+            ["]/"] = "@comment.outer",
           },
           goto_previous_start = { 
             ["[m"] = "@function.outer", 
@@ -64,7 +64,7 @@ return {
             ["[o"] = "@loop.outer",
             ["[s"] = "@statement.outer",
             ["[z"] = "@fold",
-            ["[c"] = "@comment.outer",
+            ["[/"] = "@comment.outer",
           },
           goto_next_end     = { 
             ["]M"] = "@function.outer", 

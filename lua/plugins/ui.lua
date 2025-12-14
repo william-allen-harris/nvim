@@ -20,9 +20,10 @@ return {
       spec = {
         { "<leader>b", group = "buffer" },
         { "<leader>c", group = "code" },
-        { "<leader>d", group = "debug" },
+        { "<leader>d", group = "debug/diagnostics" },
         { "<leader>f", group = "find/file" },
         { "<leader>g", group = "git" },
+        { "<leader>h", group = "hunk" },
         { "<leader>n", group = "neogen" },
         { "<leader>q", group = "session" },
         { "<leader>r", group = "repl" },
@@ -123,22 +124,22 @@ return {
     config = function(_, opts)
       require("illuminate").configure(opts)
 
-      -- Keymaps for navigating references
+      -- Keymaps for navigating references (using ]r/[r to avoid conflict with treesitter)
       local function map(key, dir, buffer)
         vim.keymap.set("n", key, function()
           require("illuminate")["goto_" .. dir .. "_reference"](false)
         end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
       end
 
-      map("]]", "next")
-      map("[[", "prev")
+      map("]r", "next")
+      map("[r", "prev")
 
       -- Also set it after opening a file
       vim.api.nvim_create_autocmd("FileType", {
         callback = function()
           local buffer = vim.api.nvim_get_current_buf()
-          map("]]", "next", buffer)
-          map("[[", "prev", buffer)
+          map("]r", "next", buffer)
+          map("[r", "prev", buffer)
         end,
       })
     end,

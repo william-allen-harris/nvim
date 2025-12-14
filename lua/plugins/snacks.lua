@@ -126,9 +126,9 @@ return {
       { "<leader>.", function() Snacks.scratch() end, desc = "Toggle scratch buffer" },
       { "<leader>S", function() Snacks.scratch.select() end, desc = "Select scratch buffer" },
 
-      -- Words navigation (jump between references)
-      { "]]", function() Snacks.words.jump(vim.v.count1) end, desc = "Next reference", mode = { "n", "t" } },
-      { "[[", function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev reference", mode = { "n", "t" } },
+      -- Words navigation (jump between references) - using ]w/[w to avoid conflict with treesitter
+      { "]w", function() Snacks.words.jump(vim.v.count1) end, desc = "Next word reference", mode = { "n", "t" } },
+      { "[w", function() Snacks.words.jump(-vim.v.count1) end, desc = "Prev word reference", mode = { "n", "t" } },
 
       -- Buffer delete (better than :bdelete)
       { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete buffer" },

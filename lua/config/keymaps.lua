@@ -4,14 +4,15 @@
 
 local map = vim.keymap.set
 
--- ┌──────────────────────┐
--- │ Tmux navigation      │
--- └──────────────────────┘
+-- ┌────────────────────────┐
+-- │ Tmux/Window navigation │
+-- └────────────────────────┘
+-- Uses vim-tmux-navigator which handles both tmux panes and vim windows seamlessly
 vim.g.tmux_navigator_no_mappings = 1
-map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left" })
-map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down" })
-map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up" })
-map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right" })
+map({ "n", "t" }, "<C-h>", "<cmd>TmuxNavigateLeft<CR>", { desc = "Navigate left (tmux/vim)" })
+map({ "n", "t" }, "<C-j>", "<cmd>TmuxNavigateDown<CR>", { desc = "Navigate down (tmux/vim)" })
+map({ "n", "t" }, "<C-k>", "<cmd>TmuxNavigateUp<CR>", { desc = "Navigate up (tmux/vim)" })
+map({ "n", "t" }, "<C-l>", "<cmd>TmuxNavigateRight<CR>", { desc = "Navigate right (tmux/vim)" })
 map({ "n", "t" }, "<C-\\>", "<cmd>TmuxNavigatePrevious<CR>", { desc = "Navigate previous" })
 
 -- ┌──────────────────────┐
@@ -58,12 +59,6 @@ map("n", "<A-k>", "<cmd>m .-2<cr>==", { desc = "Move line up" })
 map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Move selection down" })
 map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move selection up" })
 
--- Better window navigation (when not using tmux)
-map("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
-map("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
-
 -- Resize windows
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
 map("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
@@ -91,9 +86,4 @@ map("n", "<leader>Q", "<cmd>qa<cr>", { desc = "Quit all" })
 map("n", "<leader>-", "<cmd>split<cr>", { desc = "Horizontal split" })
 map("n", "<leader>|", "<cmd>vsplit<cr>", { desc = "Vertical split" })
 
--- ┌──────────────────────┐
--- │ Diagnostics          │
--- └──────────────────────┘
-map("n", "<leader>dl", vim.diagnostic.open_float, { desc = "Line diagnostics" })
-map("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+
