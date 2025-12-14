@@ -10,30 +10,30 @@ require("config.autocmds")
 -- ┌───────────────────────┐
 -- │ lazy.nvim plugin boot │
 -- └───────────────────────┘
-local lazy_path = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-vim.opt.rtp:prepend(lazy_path)
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins", {
   change_detection = { notify = false },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+      },
+    },
+  },
 })
-
--- ┌───────────────────────┐
--- │ Mason & LSP bootstrap │
--- └───────────────────────┘
-require("mason").setup()
-require("mason-tool-installer").setup({
-  ensure_installed = { "pyright" },
-  auto_update = false,
-  run_on_start = true,
-})
-
--- ┌─────────────────────────────────────┐
--- │ Conform (Ruff fix+format) + keymap │
--- └─────────────────────────────────────┘
-require("conform").setup({
-  formatters_by_ft = { python = { "ruff_fix", "ruff_format" } },
-  format_on_save = { lsp_fallback = false, timeout_ms = 1500 },
-})
-
--- Setup LSP after everything is loaded
-require("lsp").setup()

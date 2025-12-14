@@ -41,29 +41,103 @@ return {
   {
     "danymat/neogen",
     dependencies = "nvim-treesitter/nvim-treesitter",
-    config = function()
-      require("neogen").setup({
-        enabled = true,
-        languages = {
-          python = {
-            template = {
-              annotation_convention = "google_docstrings",
-            },
+    keys = {
+      { "<leader>nf", function() require("neogen").generate({ type = "func" }) end, desc = "Generate function docstring" },
+      { "<leader>nc", function() require("neogen").generate({ type = "class" }) end, desc = "Generate class docstring" },
+      { "<leader>nt", function() require("neogen").generate({ type = "type" }) end, desc = "Generate type docstring" },
+    },
+    opts = {
+      enabled = true,
+      languages = {
+        python = {
+          template = {
+            annotation_convention = "google_docstrings",
           },
         },
-      })
-      
-      vim.keymap.set("n", "<leader>nf", function()
-        require("neogen").generate({ type = "func" })
-      end, { desc = "Generate function docstring" })
-      
-      vim.keymap.set("n", "<leader>nc", function()
-        require("neogen").generate({ type = "class" })
-      end, { desc = "Generate class docstring" })
-      
-      vim.keymap.set("n", "<leader>nt", function()
-        require("neogen").generate({ type = "type" })
-      end, { desc = "Generate type docstring" })
+      },
+    },
+  },
+
+  -- ┌─────────────────────────────────────┐
+  -- │ DAP (Debug Adapter Protocol)        │
+  -- └─────────────────────────────────────┘
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      -- Python DAP adapter
+      "mfussenegger/nvim-dap-python",
+      -- UI for DAP
+      {
+        "rcarriga/nvim-dap-ui",
+        dependencies = { "nvim-neotest/nvim-nio" },
+        keys = {
+          { "<leader>du", function() require("dapui").toggle({}) end, desc = "Dap UI" },
+          { "<leader>de", function() require("dapui").eval() end, desc = "Eval", mode = { "n", "v" } },
+        },
+        opts = {},
+        config = function(_, opts)
+          local dap = require("dap")
+          local dapui = require("dapui")
+          dapui.setup(opts)
+          dap.listeners.after.event_initialized["dapui_config"] = function()
+            dapui.open({})
+          end
+          dap.listeners.before.event_terminated["dapui_config"] = function()
+            dapui.close({})
+          end
+          dap.listeners.before.event_exited["dapui_config"] = function()
+            dapui.close({})
+          end
+        end,
+      },
+      -- Virtual text for DAP
+      {
+        "theHamsta/nvim-dap-virtual-text",
+        opts = {},
+      },
+    },
+    keys = {
+      { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end, desc = "Breakpoint Condition" },
+      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+      { "<leader>dc", function() require("dap").continue() end, desc = "Continue" },
+      { "<leader>dC", function() require("dap").run_to_cursor() end, desc = "Run to Cursor" },
+      { "<leader>dg", function() require("dap").goto_() end, desc = "Go to Line (No Execute)" },
+      { "<leader>di", function() require("dap").step_into() end, desc = "Step Into" },
+      { "<leader>dj", function() require("dap").down() end, desc = "Down" },
+      { "<leader>dk", function() require("dap").up() end, desc = "Up" },
+      { "<leader>dl", function() require("dap").run_last() end, desc = "Run Last" },
+      { "<leader>do", function() require("dap").step_out() end, desc = "Step Out" },
+      { "<leader>dO", function() require("dap").step_over() end, desc = "Step Over" },
+      { "<leader>dp", function() require("dap").pause() end, desc = "Pause" },
+      { "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
+      { "<leader>ds", function() require("dap").session() end, desc = "Session" },
+      { "<leader>dt", function() require("dap").terminate() end, desc = "Terminate" },
+      { "<leader>dw", function() require("dap.ui.widgets").hover() end, desc = "Widgets" },
+    },
+    config = function()
+      -- Set up DAP signs
+      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DiagnosticError", linehl = "", numhl = "" })
+      vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "DiagnosticWarn", linehl = "", numhl = "" })
+      vim.fn.sign_define("DapLogPoint", { text = "", texthl = "DiagnosticInfo", linehl = "", numhl = "" })
+      vim.fn.sign_define("DapStopped", { text = "", texthl = "DiagnosticOk", linehl = "DapStoppedLine", numhl = "" })
+      vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "DiagnosticError", linehl = "", numhl = "" })
+
+      -- Highlight for stopped line
+      vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
+
+      -- Setup Python DAP
+      local dap_python = require("dap-python")
+      -- Use debugpy from Mason or system
+      local debugpy_path = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
+      if vim.fn.filereadable(debugpy_path) == 1 then
+        dap_python.setup(debugpy_path)
+      else
+        -- Fallback to system python (assumes debugpy is installed)
+        dap_python.setup("python3")
+      end
+
+      -- Test method configurations
+      dap_python.test_runner = "pytest"
     end,
   },
 
@@ -76,6 +150,17 @@ return {
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
       "nvim-neotest/neotest-python",
+    },
+    keys = {
+      { "<leader>tt", function() require("neotest").run.run() end, desc = "Run nearest test" },
+      { "<leader>tf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run file tests" },
+      { "<leader>td", function() require("neotest").run.run({ strategy = "dap" }) end, desc = "Debug nearest test" },
+      { "<leader>ts", function() require("neotest").summary.toggle() end, desc = "Toggle test summary" },
+      { "<leader>to", function() require("neotest").output.open({ enter = true, auto_close = true }) end, desc = "Show test output" },
+      { "<leader>tO", function() require("neotest").output_panel.toggle() end, desc = "Toggle test output panel" },
+      { "<leader>tr", function() require("neotest").run.run_last() end, desc = "Run last test" },
+      { "<leader>ta", function() require("neotest").run.run(vim.fn.getcwd()) end, desc = "Run all tests" },
+      { "<leader>tS", function() require("neotest").run.stop() end, desc = "Stop tests" },
     },
     config = function()
       require("neotest").setup({
@@ -92,12 +177,11 @@ return {
               return vim.fn.exepath("python3") or vim.fn.exepath("python")
             end,
             pytest_discover_instances = true,
-            -- Patterns for test discovery
             is_test_file = function(file_path)
-              return file_path:match("test_.*%.py$") or 
-                     file_path:match(".*_test%.py$") or
-                     file_path:match("tests/.*%.py$") or
-                     file_path:match("test/.*%.py$")
+              return file_path:match("test_.*%.py$")
+                or file_path:match(".*_test%.py$")
+                or file_path:match("tests/.*%.py$")
+                or file_path:match("test/.*%.py$")
             end,
           }),
         },
@@ -162,52 +246,21 @@ return {
           unknown = "?",
         },
       })
-      
-      -- Test runner keymaps
-      vim.keymap.set("n", "<leader>tt", function()
-        require("neotest").run.run()
-      end, { desc = "Run nearest test" })
-      
-      vim.keymap.set("n", "<leader>tf", function()
-        require("neotest").run.run(vim.fn.expand("%"))
-      end, { desc = "Run file tests" })
-      
-      vim.keymap.set("n", "<leader>td", function()
-        require("neotest").run.run({ strategy = "dap" })
-      end, { desc = "Debug nearest test" })
-      
-      vim.keymap.set("n", "<leader>ts", function()
-        require("neotest").summary.toggle()
-      end, { desc = "Toggle test summary" })
-      
-      vim.keymap.set("n", "<leader>to", function()
-        require("neotest").output.open({ enter = true, auto_close = true })
-      end, { desc = "Show test output" })
-
-      vim.keymap.set("n", "<leader>tO", function()
-        require("neotest").output_panel.toggle()
-      end, { desc = "Toggle test output panel" })
-      
-      vim.keymap.set("n", "<leader>tr", function()
-        require("neotest").run.run_last()
-      end, { desc = "Run last test" })
-      
-      vim.keymap.set("n", "<leader>ta", function()
-        require("neotest").run.run(vim.fn.getcwd())
-      end, { desc = "Run all tests" })
-
-      vim.keymap.set("n", "<leader>tS", function()
-        require("neotest").run.stop()
-      end, { desc = "Stop tests" })
     end,
   },
 
   -- Python REPL integration
   {
     "Vigemus/iron.nvim",
+    keys = {
+      { "<leader>rs", "<cmd>IronRepl<cr>", desc = "Start REPL" },
+      { "<leader>rr", "<cmd>IronRestart<cr>", desc = "Restart REPL" },
+      { "<leader>rf", "<cmd>IronFocus<cr>", desc = "Focus REPL" },
+      { "<leader>rh", "<cmd>IronHide<cr>", desc = "Hide REPL" },
+    },
     config = function()
       local iron = require("iron.core")
-      
+
       iron.setup({
         config = {
           scratch_repl = true,
@@ -244,12 +297,6 @@ return {
         },
         ignore_blank_lines = true,
       })
-      
-      -- Python REPL keymaps
-      vim.keymap.set("n", "<leader>rs", "<cmd>IronRepl<cr>", { desc = "Start REPL" })
-      vim.keymap.set("n", "<leader>rr", "<cmd>IronRestart<cr>", { desc = "Restart REPL" })
-      vim.keymap.set("n", "<leader>rf", "<cmd>IronFocus<cr>", { desc = "Focus REPL" })
-      vim.keymap.set("n", "<leader>rh", "<cmd>IronHide<cr>", { desc = "Hide REPL" })
     end,
   },
 }
