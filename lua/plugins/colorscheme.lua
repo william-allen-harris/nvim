@@ -3,11 +3,10 @@
 -- └─────────────────┘
 
 return {
-  -- Kanagawa (default)
+  -- Kanagawa
   {
     "rebelot/kanagawa.nvim",
-    priority = 1000,
-    lazy = false,
+    lazy = true,
     config = function()
       require("kanagawa").setup({
         compile = false,
@@ -43,16 +42,34 @@ return {
           light = "lotus",
         },
       })
-
-      vim.o.background = "dark"
-      vim.cmd.colorscheme("kanagawa")
     end,
   },
 
-  -- Monokai Pro
+  -- Oasis (desert-inspired themes)
+  {
+    "uhs-robert/oasis.nvim",
+    lazy = true,
+    config = function()
+      require("oasis").setup({
+        style = "lagoon",
+        transparent = true,
+        terminal_colors = true,
+        styles = {
+          bold = true,
+          italic = true,
+          underline = true,
+          undercurl = true,
+          strikethrough = true,
+        },
+      })
+    end,
+  },
+
+  -- Monokai Pro (default)
   {
     "loctvl842/monokai-pro.nvim",
-    lazy = true, -- Only load when needed
+    priority = 1000,
+    lazy = false,
     config = function()
       require("monokai-pro").setup({
         transparent_background = true,
@@ -91,6 +108,8 @@ return {
           }
         end,
       })
+
+      vim.cmd.colorscheme("monokai-pro")
     end,
   },
 
@@ -118,7 +137,7 @@ return {
         desc = "Toggle colorscheme (Kanagawa/Monokai)",
       },
       {
-        "<leader>uT",
+        "<leader>uC",
         "<cmd>Themery<cr>",
         desc = "Open theme picker",
       },
@@ -134,6 +153,14 @@ return {
         { name = "Monokai Machine", colorscheme = "monokai-pro-machine" },
         { name = "Monokai Ristretto", colorscheme = "monokai-pro-ristretto" },
         { name = "Monokai Spectrum", colorscheme = "monokai-pro-spectrum" },
+        { name = "Oasis Lagoon", colorscheme = "oasis-lagoon" },
+        { name = "Oasis Night", colorscheme = "oasis-night" },
+        { name = "Oasis Desert", colorscheme = "oasis-desert" },
+        { name = "Oasis Canyon", colorscheme = "oasis-canyon" },
+        { name = "Oasis Dune", colorscheme = "oasis-dune" },
+        { name = "Oasis Mirage", colorscheme = "oasis-mirage" },
+        { name = "Oasis Twilight", colorscheme = "oasis-twilight" },
+        { name = "Oasis Rose", colorscheme = "oasis-rose" },
       },
       livePreview = true,
     },
