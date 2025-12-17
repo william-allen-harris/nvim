@@ -100,6 +100,8 @@ return {
             SnacksIndentScope = { fg = "#505050" },
             IblIndent = { fg = "#3b3b3b" },
             IblScope = { fg = "#505050" },
+            -- Snacks dim/zen mode - just dim the text
+            SnacksDim = { fg = "#5b595c" },
             -- Spell: underline instead of red highlight
             SpellBad = { sp = "#fc9867", undercurl = true, bg = "NONE", fg = "NONE" },
             SpellCap = { sp = "#78dce8", undercurl = true, bg = "NONE", fg = "NONE" },
