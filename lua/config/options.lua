@@ -23,9 +23,8 @@ opt.spelllang = "en_gb"              -- UK English spelling
 opt.spelloptions = "camel"           -- handle camelCase words
 opt.spellcapcheck = ""               -- don't flag lowercase at sentence start
 
--- Set background and default colorscheme fallback
+-- Set background
 opt.background = "dark"
-vim.g.colors_name = "everforest"    -- Default colorscheme preference
 
 -- Completion
 opt.completeopt = "menu,menuone,noselect"

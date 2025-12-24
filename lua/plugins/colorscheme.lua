@@ -107,11 +107,16 @@ return {
             SpellCap = { sp = "#78dce8", undercurl = true, bg = "NONE", fg = "NONE" },
             SpellLocal = { sp = "#a9dc76", undercurl = true, bg = "NONE", fg = "NONE" },
             SpellRare = { sp = "#ab9df2", undercurl = true, bg = "NONE", fg = "NONE" },
+            -- Python docstrings as comments (gray instead of yellow)
+            ["@string.documentation.python"] = { fg = "#727072", italic = true },
           }
         end,
       })
 
       vim.cmd.colorscheme("monokai-pro")
+
+      -- Apply docstring highlight after colorscheme (ensures it sticks)
+      vim.api.nvim_set_hl(0, "@string.documentation.python", { fg = "#727072", italic = true })
     end,
   },
 
